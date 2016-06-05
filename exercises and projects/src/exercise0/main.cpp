@@ -1,47 +1,48 @@
-#include <iostream>
-#include <bitset>
-#include "encrypt.h"
+#include "Encrypter.h"
+#include <cmath>
 
 using namespace std;
 
-template <size_t N>
-bitset<N> increment(bitset<N> input) {
-    for (size_t i = 0; i < N; ++i) {
-        if (input[i] == 0) {  // There will be no carry
-            input[i] = 1;
-            break;
-        }
-        input[i] = 0;  // This entry was 1; set to zero and carry the 1
-    }
-    return input;
-}
-
 int main() {
-    bitset<128> realKey(1);
-    realKey <<= 127;
 
-    bitset<128> plainText(20000000);
-    bitset<128> cipherText = encrypt(realKey, plainText);
+    const size_t keySize = 128;
 
-    bitset<128> incKey(0);
-    bitset<128> tempCipher;
+    bitset<keySize> realKey(1);
+    realKey <<= keySize - 1;
 
-    int i = 0;
-    while (i != 1000000000) {
+    bitset<keySize> plainText(1000000000);
+    bitset<keySize> cipherText = Encrypter<keySize>::encrypt(realKey, plainText);
 
-        tempCipher = encrypt(incKey, plainText);
+    cout << plainText << endl;
+    cout << cipherText << endl;
 
-        if (tempCipher == cipherText) {
-            break;
-        }
+    // should terminate after 1 hour
+    time_t maxSeconds = time(NULL) + 60 * 60;
 
-        incKey = increment(incKey);
-        i++;
-    }
+    uint64_t keySpaceStart0 = 0;
+    uint64_t keySpaceEnd0 = (pow(2, 16) / 4 - 1) * 8;
+
+    uint64_t keySpaceStart1 = (pow(2, 16) / 4) * 8;
+    uint64_t keySpaceEnd1 = (pow(2, 16) / 3 - 1) * 8;
+
+    uint64_t keySpaceStart2 = (pow(2, 16) / 3) * 8;
+    uint64_t keySpaceEnd2 = (pow(2, 16) / 2 - 1) * 8;
+
+    uint64_t keySpaceStart3 = (pow(2, 16) / 2) * 8;
+    uint64_t keySpaceEnd3 = (pow(2, 16) - 1) * 8;
+
+    thread t0 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart0, keySpaceEnd0);
+    thread t1 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart1, keySpaceEnd1);
+    thread t2 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart2, keySpaceEnd2);
+    thread t3 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart3, keySpaceEnd3);
+
+    // wait for all threads to finish
+    t0.join();
+    t1.join();
+    t2.join();
+    t3.join();
 
     // We could to 10^9 in ~2 minutes - so we estimate 30*10^9 iterations in an hour
-
-    cout << incKey << endl;
 
     return 0;
 }
