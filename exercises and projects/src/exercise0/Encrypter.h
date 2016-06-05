@@ -8,12 +8,14 @@
 #include <iostream>
 #include <bitset>
 #include <thread>
+#include <mutex>
 
 using namespace std;
 
 template <size_t T> class Encrypter {
 
 public:
+    static mutex coutMutex;
     static bitset<T> bruteforce(bitset<T> plainText,
                                 bitset<T> cipherText,
                                 time_t maxSeconds,
