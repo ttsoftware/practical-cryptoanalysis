@@ -6,6 +6,9 @@
 #include <bitset>
 #include <thread>
 #include <mutex>
+#include <gnutls/openssl.h>
+#include <unordered_map>
+#include <cmath>
 
 using namespace std;
 
@@ -20,6 +23,9 @@ public:
                                 uint64_t keySpaceEnd);
 
     static bitset<T> encrypt(bitset<T> key, bitset<T> plaintext);
+    static bitset<20> md5Redux(bitset<T> input);
+    static bitset<20> reduceSize(bitset<T> input);
+    static bitset<20>* chain(bitset<T> input, unordered_map<bitset<20>, int>* coveredBits);
 
 private:
     static bitset<T> increment(bitset<T> input);
