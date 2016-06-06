@@ -17,7 +17,7 @@ int main() {
     cout << cipherText << endl;
 
     // should terminate after 1 hour
-    time_t maxSeconds = time(NULL) + 5; // * 60;
+    time_t maxSeconds = time(NULL) + 60 * 60;
 
     uint64_t keySpaceStart0 = 0;
     uint64_t keySpaceEnd0 = (pow(2, 16) * 8) / 4 - 1;
@@ -29,7 +29,7 @@ int main() {
     uint64_t keySpaceEnd2 = (pow(2, 16) * 8) / 2 - 1;
 
     uint64_t keySpaceStart3 = (pow(2, 16) * 8) / 2;
-    uint64_t keySpaceEnd3 = (pow(2, 16) * 8) - 1;
+    uint64_t keySpaceEnd3 = (pow(2, 16) * 8);
 
     thread t0 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart0, keySpaceEnd0);
     thread t1 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart1, keySpaceEnd1);

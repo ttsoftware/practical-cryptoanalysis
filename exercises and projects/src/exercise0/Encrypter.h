@@ -1,6 +1,3 @@
-//
-// Created by troels on 6/5/16.
-//
 
 #ifndef EXERCISES_AND_PROJECTS_ENCRYPTER_H
 #define EXERCISES_AND_PROJECTS_ENCRYPTER_H
