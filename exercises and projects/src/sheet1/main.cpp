@@ -19,14 +19,14 @@ int main() {
         Encrypter<20>::chain(input, &coveredBits, i, md5Graph);
     }
 
-    cout << "size: " << coveredBits.size() << endl;
-
     Encrypter<20>::writeToFile((int *) &md5Graph, graphSize, "md5_graph_rainbow.txt");
     Encrypter<20>::writeToFile(&coveredBits, "rainbow_table_rainbow.txt");
 
     unordered_map<bitset<20>, int> map = Encrypter<20>::loadFromFile("rainbow_table_rainbow.txt");
 
-    cout << "size: " << map.size() << endl;
+    if (coveredBits.size() != map.size()) {
+        throw exception();
+    }
 
     return 0;
 }
