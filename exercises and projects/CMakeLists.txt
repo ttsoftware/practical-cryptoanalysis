@@ -11,3 +11,4 @@ if (OPENSSL_FOUND)
     include_directories(${OPENSSL_INCLUDE_DIR})
     target_link_libraries (exercises_and_projects ${OPENSSL_LIBRARIES})
 endif (OPENSSL_FOUND)
+

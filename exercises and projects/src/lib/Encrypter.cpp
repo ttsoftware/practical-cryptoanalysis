@@ -113,3 +113,35 @@ bitset<20> Encrypter<T>::reduceSize(bitset<T> input) {
     }
     return returnBits;
 }
+
+template<size_t T>
+unordered_map<bitset<20>, int> Encrypter<T>::loadFromFile(string path){
+    string line;
+    ifstream dump (path);
+
+    unordered_map<bitset<20>, int> map;
+
+    if(dump.is_open()){
+        while(getline(dump, line)){
+            int del_position = line.find(":");
+            string first = line.substr(0,del_position);
+            string last = line.substr(del_position + 1, line.length());
+            bitset<20> bits = bitset<20>(first);
+            map[bits] = stoi(last);
+        }
+    }
+
+    return map;
+}
+
+template<size_t T>
+void Encrypter<T>::writeToFile(unordered_map<bitset<20>, int> * coveredBits, string path){
+    ofstream dump;
+    dump.open(path);
+
+    for(auto it = coveredBits->begin(); it != coveredBits->end(); ++it){
+        dump << it->first << ":" << it->second << std::endl;
+    }
+
+    dump.close();
+}
