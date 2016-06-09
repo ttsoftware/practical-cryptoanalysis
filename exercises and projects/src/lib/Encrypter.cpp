@@ -11,20 +11,17 @@ bitset<T> Encrypter<T>::encrypt(bitset<T> key,
 
 template<size_t T>
 void Encrypter<T>::chain(bitset<T> input,
-                         unordered_map<bitset<20>, int> *coveredBits,
-                         int graphPosition,
-                         int *md5Graph) {
+                         unordered_map<bitset<20>, int> *coveredBits) {
 
     bitset<20> *chain = new bitset<20>[256];
     chain[0] = input;
     (*coveredBits)[chain[0]] = 1;
-    md5Graph[graphPosition * 256] = coveredBits->size();
 
     for (int i = 1; i < 256; i++) {
         bitset<20> bitI (i);
 
         chain[i] = Encrypter<T>::md5Redux(chain[i - 1]);
-        chain[i] ^= bitI;
+        // chain[i] ^= bitI;
 
         if ((*coveredBits)[chain[i]] == 0) {
             (*coveredBits)[chain[i]] = 1;
@@ -32,8 +29,6 @@ void Encrypter<T>::chain(bitset<T> input,
         else {
             (*coveredBits)[chain[i]] += 1;
         }
-
-        md5Graph[graphPosition * 256 + i] = coveredBits->size();
     }
 }
 

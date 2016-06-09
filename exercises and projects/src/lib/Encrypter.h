@@ -31,9 +31,7 @@ public:
     static bitset<20> reduceSize(bitset<T> input);
 
     static void chain(bitset<T> input,
-                      unordered_map<bitset<20>, int> *coveredBits,
-                      int graphSize,
-                      int* md5Graph);
+                      unordered_map<bitset<20>, int> *coveredBits);
 
     static void writeToFile(unordered_map<bitset<20>, int> *coveredBits, string path);
 
