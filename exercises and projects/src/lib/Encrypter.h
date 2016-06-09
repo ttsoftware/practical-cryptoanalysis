@@ -1,4 +1,3 @@
-
 #ifndef EXERCISES_AND_PROJECTS_ENCRYPTER_H
 #define EXERCISES_AND_PROJECTS_ENCRYPTER_H
 
@@ -18,6 +17,7 @@ template <size_t T> class Encrypter {
 
 public:
     static mutex coutMutex;
+
     static bitset<T> bruteforce(bitset<T> plainText,
                                 bitset<T> cipherText,
                                 time_t maxSeconds,
@@ -25,11 +25,21 @@ public:
                                 uint64_t keySpaceEnd);
 
     static bitset<T> encrypt(bitset<T> key, bitset<T> plaintext);
+
     static bitset<20> md5Redux(bitset<T> input);
+
     static bitset<20> reduceSize(bitset<T> input);
-    static bitset<20>* chain(bitset<T> input, unordered_map<bitset<20>, int>* coveredBits);
-    static void writeToFile(unordered_map<bitset<20>, int > * coveredBits, string path);
-    static unordered_map<bitset<20>,int> loadFromFile(string path);
+
+    static void chain(bitset<T> input,
+                      unordered_map<bitset<20>, int> *coveredBits,
+                      int graphPosition,
+                      int* md5Graph);
+
+    static void writeToFile(unordered_map<bitset<20>, int> *coveredBits, string path);
+
+    static void writeToFile(int* graph, int graphSize, string path);
+
+    static unordered_map<bitset<20>, int> loadFromFile(string path);
 
 private:
     static bitset<T> increment(bitset<T> input);

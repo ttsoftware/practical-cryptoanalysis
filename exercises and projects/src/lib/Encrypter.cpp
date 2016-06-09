@@ -10,24 +10,28 @@ bitset<T> Encrypter<T>::encrypt(bitset<T> key,
 }
 
 template<size_t T>
-bitset<20> *Encrypter<T>::chain(bitset<T> input, unordered_map<bitset<20>, int> *coveredBits) {
+void Encrypter<T>::chain(bitset<T> input,
+                         unordered_map<bitset<20>, int> *coveredBits,
+                         int graphPosition,
+                         int *md5Graph) {
 
     bitset<20> *chain = new bitset<20>[256];
     chain[0] = input;
     (*coveredBits)[chain[0]] = 1;
+    md5Graph[graphPosition * 256] = coveredBits->size();
 
     for (int i = 1; i < 256; i++) {
         chain[i] = Encrypter<T>::md5Redux(chain[i - 1]);
 
-        if ((*coveredBits)[chain[i]] == NULL) {
+        if ((*coveredBits)[chain[i]] == 0) {
             (*coveredBits)[chain[i]] = 1;
         }
         else {
             (*coveredBits)[chain[i]] += 1;
         }
-    }
 
-    return chain;
+        md5Graph[graphPosition * 256 + i] = coveredBits->size();
+    }
 }
 
 template<size_t T>
@@ -43,7 +47,7 @@ bitset<20> Encrypter<T>::md5Redux(bitset<T> input) {
     unsigned char digest[MD5_DIGEST_LENGTH];
     MD5((unsigned char *) &inputChars, 20, (unsigned char *) &digest);
 
-    bitset<128> md5Bits;
+    bitset<8 * MD5_DIGEST_LENGTH> md5Bits;
     for (int i = 0; i < MD5_DIGEST_LENGTH; ++i) {
         unsigned char c = digest[i];
         for (int j = 7; j >= 0 && c; --j) {
@@ -56,7 +60,7 @@ bitset<20> Encrypter<T>::md5Redux(bitset<T> input) {
         }
     }
 
-    return Encrypter<128>::reduceSize(md5Bits);
+    return Encrypter<8 * MD5_DIGEST_LENGTH>::reduceSize(md5Bits);
 }
 
 template<size_t T>
@@ -120,16 +124,16 @@ bitset<20> Encrypter<T>::reduceSize(bitset<T> input) {
 }
 
 template<size_t T>
-unordered_map<bitset<20>, int> Encrypter<T>::loadFromFile(string path){
+unordered_map<bitset<20>, int> Encrypter<T>::loadFromFile(string path) {
     string line;
-    ifstream dump (path);
+    ifstream dump(path);
 
     unordered_map<bitset<20>, int> map;
 
-    if(dump.is_open()){
-        while(getline(dump, line)){
+    if (dump.is_open()) {
+        while (getline(dump, line)) {
             int del_position = line.find(":");
-            string first = line.substr(0,del_position);
+            string first = line.substr(0, del_position);
             string last = line.substr(del_position + 1, line.length());
             bitset<20> bits = bitset<20>(first);
             map[bits] = stoi(last);
@@ -140,12 +144,24 @@ unordered_map<bitset<20>, int> Encrypter<T>::loadFromFile(string path){
 }
 
 template<size_t T>
-void Encrypter<T>::writeToFile(unordered_map<bitset<20>, int> * coveredBits, string path){
+void Encrypter<T>::writeToFile(unordered_map<bitset<20>, int> *coveredBits, string path) {
     ofstream dump;
     dump.open(path);
 
-    for(auto it = coveredBits->begin(); it != coveredBits->end(); ++it){
+    for (auto it = coveredBits->begin(); it != coveredBits->end(); ++it) {
         dump << it->first << ":" << it->second << std::endl;
+    }
+
+    dump.close();
+}
+
+template<size_t T>
+void Encrypter<T>::writeToFile(int *graph, int graphSize, string path) {
+    ofstream dump;
+    dump.open(path);
+
+    for (int i = 0; i < graphSize; i++) {
+        dump << graph[i] << endl;
     }
 
     dump.close();
