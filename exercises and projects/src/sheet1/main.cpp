@@ -21,10 +21,10 @@ int main() {
 
     cout << "size: " << coveredBits.size() << endl;
 
-    Encrypter<20>::writeToFile((int *) &md5Graph, graphSize, "md5_graph.txt");
-    Encrypter<20>::writeToFile(&coveredBits, "rainbow_table.txt");
+    Encrypter<20>::writeToFile((int *) &md5Graph, graphSize, "md5_graph_rainbow.txt");
+    Encrypter<20>::writeToFile(&coveredBits, "rainbow_table_rainbow.txt");
 
-    unordered_map<bitset<20>, int> map = Encrypter<20>::loadFromFile("rainbow_table.txt");
+    unordered_map<bitset<20>, int> map = Encrypter<20>::loadFromFile("rainbow_table_rainbow.txt");
 
     cout << "size: " << map.size() << endl;
 

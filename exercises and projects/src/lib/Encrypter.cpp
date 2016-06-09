@@ -21,7 +21,10 @@ void Encrypter<T>::chain(bitset<T> input,
     md5Graph[graphPosition * 256] = coveredBits->size();
 
     for (int i = 1; i < 256; i++) {
+        bitset<20> bitI (i);
+
         chain[i] = Encrypter<T>::md5Redux(chain[i - 1]);
+        chain[i] ^= bitI;
 
         if ((*coveredBits)[chain[i]] == 0) {
             (*coveredBits)[chain[i]] = 1;
