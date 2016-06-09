@@ -1,9 +1,6 @@
 #include "Encrypter.h"
 
 template<size_t T>
-mutex Encrypter<T>::coutMutex;
-
-template<size_t T>
 bitset<T> Encrypter<T>::encrypt(bitset<T> key,
                                 bitset<T> plaintext) {
     return key ^ plaintext;
@@ -14,34 +11,33 @@ bitset<T> Encrypter<T>::bruteforce(bitset<T> plainText,
                                    bitset<T> cipherText,
                                    time_t maxSeconds,
                                    uint64_t keySpaceStart,
-                                   uint64_t keySpaceEnd) {
+                                   uint64_t keySpaceEnd,
+                                   uint64_t * count) {
 
-    thread::id tid = this_thread::get_id();
-
-    cout << "Thread: " << tid << " : " << keySpaceStart << " - " << keySpaceEnd << endl;
-
-    bitset<T> incKey(keySpaceStart);
+    //Bitshift key space that we search.
+    bitset<T> incKey = keySpaceStart == 0 ? bitset<T>(0) : bitset<T>(1);
+    bitset<T> endKey(1);
+    incKey <<= keySpaceStart;
+    endKey <<= keySpaceEnd;
     bitset<T> tempCipher;
 
-    uint64_t cycleCount = 0;
-
     // stop if we reach the end of keyspace
-    while (time(NULL) <= maxSeconds && incKey.count() < keySpaceEnd) {
-        tempCipher = Encrypter<T>::encrypt(incKey, plainText);
+    while (time(NULL) <= maxSeconds && (incKey.count() != keySpaceEnd)) {
+        //Encrypt with new key
 
+        tempCipher = Encrypter<T>::encrypt(incKey, plainText);
+        //Increment external counter
+        (*count)++;
+
+        //if result found, terminate
         if (tempCipher == cipherText) {
+            cout << "Found cipher: " << cipherText << endl;
             cout << incKey << endl;
             break;
         }
-
+        //Increment key
         incKey = Encrypter<T>::increment(incKey);
-        cycleCount++;
     }
-
-    coutMutex.lock();
-    cout << "Thread: " << tid << " : " << cycleCount << " cycles" << endl;
-    cout << "Thread: " << tid << " : " << incKey << " key" << endl;
-    coutMutex.unlock();
 
     return incKey;
 }

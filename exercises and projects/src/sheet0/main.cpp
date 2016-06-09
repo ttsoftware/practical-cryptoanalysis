@@ -1,5 +1,4 @@
 #include "Encrypter.h"
-#include <cmath>
 
 using namespace std;
 
@@ -17,7 +16,7 @@ int main() {
     cout << cipherText << endl;
 
     // should terminate after 1 hour
-    time_t maxSeconds = time(NULL) + 60 * 60;
+    time_t maxSeconds = time(NULL) + 5 * 60;
 
     uint64_t keySpaceStart0 = 0;
     uint64_t keySpaceEnd0 = 31;
@@ -31,16 +30,20 @@ int main() {
     uint64_t keySpaceStart3 = 95;
     uint64_t keySpaceEnd3 = 127;
 
-    thread t0 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart0, keySpaceEnd0);
-    thread t1 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart1, keySpaceEnd1);
-    thread t2 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart2, keySpaceEnd2);
-    thread t3 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart3, keySpaceEnd3);
+    uint64_t count1, count2, count3, count4;
+
+    thread t0 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart0, keySpaceEnd0, &count1);
+    thread t1 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart1, keySpaceEnd1, &count2);
+    thread t2 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart2, keySpaceEnd2, &count3);
+    thread t3 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart3, keySpaceEnd3, &count4);
 
     // wait for all threads to finish
     t0.join();
     t1.join();
     t2.join();
     t3.join();
+
+    cout << "Total: " << count1 + count2 + count3 + count4 << endl;
 
     // We could to 10^9 in ~2 minutes - so we estimate 30*10^9 iterations in an hour
 

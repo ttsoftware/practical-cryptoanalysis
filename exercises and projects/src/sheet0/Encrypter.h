@@ -5,19 +5,18 @@
 #include <iostream>
 #include <bitset>
 #include <thread>
-#include <mutex>
 
 using namespace std;
 
 template <size_t T> class Encrypter {
 
 public:
-    static mutex coutMutex;
     static bitset<T> bruteforce(bitset<T> plainText,
                                 bitset<T> cipherText,
                                 time_t maxSeconds,
                                 uint64_t keySpaceStart,
-                                uint64_t keySpaceEnd);
+                                uint64_t keySpaceEnd,
+                                uint64_t * count);
 
     static bitset<T> encrypt(bitset<T> key, bitset<T> plaintext);
 
