@@ -3,14 +3,14 @@
 #define EXERCISES_AND_PROJECTS_ENCRYPTER_H
 
 #include <iostream>
+#include <fstream>
 #include <bitset>
 #include <thread>
 #include <mutex>
 #include <openssl/md5.h>
 #include <unordered_map>
 #include <cmath>
-#include <iostream>
-#include <fstream>
+#include <cstring>
 
 using namespace std;
 
