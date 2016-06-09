@@ -20,16 +20,16 @@ int main() {
     time_t maxSeconds = time(NULL) + 60 * 60;
 
     uint64_t keySpaceStart0 = 0;
-    uint64_t keySpaceEnd0 = (pow(2, 16) * 8) / 4 - 1;
+    uint64_t keySpaceEnd0 = 31;
 
-    uint64_t keySpaceStart1 = (pow(2, 16) * 8) / 4;
-    uint64_t keySpaceEnd1 = (pow(2, 16) * 8) / 3 - 1;
+    uint64_t keySpaceStart1 = 31;
+    uint64_t keySpaceEnd1 = 63;
 
-    uint64_t keySpaceStart2 = (pow(2, 16) * 8) / 3;
-    uint64_t keySpaceEnd2 = (pow(2, 16) * 8) / 2 - 1;
+    uint64_t keySpaceStart2 = 63;
+    uint64_t keySpaceEnd2 = 95;
 
-    uint64_t keySpaceStart3 = (pow(2, 16) * 8) / 2;
-    uint64_t keySpaceEnd3 = (pow(2, 16) * 8);
+    uint64_t keySpaceStart3 = 95;
+    uint64_t keySpaceEnd3 = 127;
 
     thread t0 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart0, keySpaceEnd0);
     thread t1 = thread(Encrypter<keySize>::bruteforce, plainText, cipherText, maxSeconds, keySpaceStart1, keySpaceEnd1);
