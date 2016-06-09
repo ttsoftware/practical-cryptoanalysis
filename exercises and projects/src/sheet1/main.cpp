@@ -7,7 +7,7 @@ int main() {
     unordered_map<bitset<20>, int> coveredBits;
 
     int maxRand = pow(2, 20);
-    int maxChains = pow(2, 4);
+    int maxChains = pow(2, 12);
 
     int graphSize = maxChains * 256;
     int md5Graph[graphSize];

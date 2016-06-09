@@ -32,7 +32,7 @@ public:
 
     static void chain(bitset<T> input,
                       unordered_map<bitset<20>, int> *coveredBits,
-                      int graphPosition,
+                      int graphSize,
                       int* md5Graph);
 
     static void writeToFile(unordered_map<bitset<20>, int> *coveredBits, string path);
