@@ -20,10 +20,10 @@ int main() {
         md5Graph[i] = coveredBits.size();
     }
 
-    Encrypter<20>::writeToFile((int *) &md5Graph, maxChains, "md5_graph.txt");
-    Encrypter<20>::writeToFile(&coveredBits, "rainbow_table.txt");
+    Encrypter<20>::writeToFile((int *) &md5Graph, maxChains, "md5_graph_rainbow.txt");
+    Encrypter<20>::writeToFile(&coveredBits, "rainbow_table_rainbow.txt");
 
-    unordered_map<bitset<20>, int> map = Encrypter<20>::loadFromFile("rainbow_table.txt");
+    unordered_map<bitset<20>, int> map = Encrypter<20>::loadFromFile("rainbow_table_rainbow.txt");
 
     if (coveredBits.size() != map.size()) {
         throw exception();

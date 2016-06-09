@@ -21,7 +21,7 @@ void Encrypter<T>::chain(bitset<T> input,
         bitset<20> bitI (i);
 
         chain[i] = Encrypter<T>::md5Redux(chain[i - 1]);
-        // chain[i] ^= bitI;
+        chain[i] ^= bitI;
 
         if ((*coveredBits)[chain[i]] == 0) {
             (*coveredBits)[chain[i]] = 1;
