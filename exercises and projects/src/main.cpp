@@ -54,7 +54,7 @@ int main() {
 
     buildRainbowTable(challenge);
 
-    unordered_map<bitset<28>, bitset<28>> map = Encrypter<28>::loadFromFile("rainbow_table_challenge_multi.txt");
+    unordered_map<bitset<28>, bitset<28>> map = Encrypter<28>::loadFromFile("/projects/rainbow_table_challenge_multi.txt");
 
     Encrypter<28>::breakKey(&map, challenge, key);
 
