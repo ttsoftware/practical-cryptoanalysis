@@ -20,7 +20,7 @@ public:
 
     static bitset<28> md5Redux(bitset<T> input);
 
-    static bitset<T> chain(bitset<T> cipher, bitset<T> challenge, int rainbowFunction, int chainLength);
+    static bitset<T> chain(bitset<T> cipher, bitset<T> challenge, int rainbowFunction, int chainLength, bool print);
 
     static bitset<T> hax(bitset<T> cipher, bitset<T> challenge, unordered_map<bitset<T>, bitset<T> > *map);
 

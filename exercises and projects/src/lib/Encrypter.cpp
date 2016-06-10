@@ -6,22 +6,6 @@ bitset<T> Encrypter<T>::encrypt(bitset<T> key, bitset<T> plaintext) {
     return Encrypter<2 * T>::md5Redux(concatted);
 }
 
-template<size_t T>
-void Encrypter<T>::chain(bitset<T> input,
-                         bitset<T> challenge,
-                         unordered_map<bitset<T>, bitset<T>> *rainbowTable) {
-
-    int chainLength = pow(2, 10);
-    bitset<28> chainDigest(input);
-
-    for (int i = 1; i < chainLength; i++) {
-        chainDigest = Encrypter<28>::encrypt(chainDigest, challenge);
-        bitset<28> bitI(i);
-        chainDigest ^= bitI;
-    }
-
-    (*rainbowTable)[input] = chainDigest;
-}
 
 template<size_t T>
 bitset<T> Encrypter<T>::hax(bitset<T> cipher, bitset<T> challenge, unordered_map<bitset<T>, bitset<T>> *map) {
@@ -32,18 +16,30 @@ bitset<T> Encrypter<T>::hax(bitset<T> cipher, bitset<T> challenge, unordered_map
 
     if(it != (*map).end()){
         cout << "Looking for key: " << key << " start("<< 0 << "): " << it->second << endl;
-        return Encrypter<T>::chain(it->second, challenge, 1, chainLength);
+        return Encrypter<T>::chain(it->second, challenge, 1, chainLength, true);
     }
 
-    for (int i = 1; i < chainLength; i++) {
-        key = Encrypter<T>::chain(key, challenge, i, chainLength);
+    bitset<T> prev;
+
+    for (int i = 1; i <= chainLength; i++) {
+        prev = key;
+        key = Encrypter<T>::chain(cipher, challenge, i, chainLength, false);
 
         it = (*map).find(key);
 
         if (it != (*map).end()) {
             //Found a match on the cipher
             cout << "Looking for key: " << key << " start("<< i << "): " << it->second << endl;
-            return Encrypter<T>::chain(it->second, challenge, 1, chainLength-i);
+
+            //chain used to find key lookup
+            Encrypter<T>::chain(cipher, challenge, i, chainLength, true);
+
+            cout << endl;
+
+            //Full chain for match
+            Encrypter<T>::chain(it->second, challenge, 1, chainLength, true);
+
+            return Encrypter<T>::chain(it->second, challenge, 1, i, false);
         }
     }
 
@@ -55,16 +51,20 @@ template<size_t T>
 bitset<T> Encrypter<T>::chain(bitset<T> cipher,
                               bitset<T> challenge,
                               int rainbowFunction,
-                              int chainLength) {
+                              int chainLength,
+                              bool print) {
 
     bitset<T> temp = cipher;
 
-    for (; rainbowFunction < chainLength; rainbowFunction++) {
+    for (; rainbowFunction <= chainLength; rainbowFunction++) {
         temp = Encrypter<T>::encrypt(temp, challenge);
         bitset<T> bitI(rainbowFunction);
         temp ^= bitI;
 
-        cout << rainbowFunction << ": " << temp << endl;
+        if(print){
+            cout << rainbowFunction << ": " << temp << endl;
+        }
+
     }
 
     return temp;
