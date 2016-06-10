@@ -18,6 +18,7 @@ template<size_t T> class Encrypter {
 public:
     static bitset<T> encrypt(bitset<T> key, bitset<T> plaintext);
 
+    static bitset<28> testMD5(bitset<T> input);
     static bitset<28> md5Redux(bitset<T> input);
 
     static bitset<T> chain(bitset<T> cipher, bitset<T> challenge, int rainbowFunction, int chainLength, bool print);
