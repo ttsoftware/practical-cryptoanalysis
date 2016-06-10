@@ -50,7 +50,7 @@ void buildRainbowTable(bitset<28> challenge) {
 int main() {
 
     bitset<28> challenge("1010101010101010101010101010");
-    bitset<28> key("1000000000000000000000000000");
+    bitset<28>       key("1000000000000000000000000001");
 
     //buildRainbowTable(challenge);
 

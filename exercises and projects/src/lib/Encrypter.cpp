@@ -38,6 +38,7 @@ bitset<T> Encrypter<T>::hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>
     auto it = (*map).find(key);
 
     if(it != (*map).end()){
+        cout << "Looking for key: " << key << " start: " << it->second;
         return Encrypter<T>::chainLookup(it->second, 0, chainLength);
     }
 
@@ -48,6 +49,7 @@ bitset<T> Encrypter<T>::hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>
 
         if(it != (*map).end()){
             //Found a match on the cipher
+            cout << "Looking for key: " << key << " start: " << it->second;
             return Encrypter<T>::chainLookup(it->second, i, chainLength);
         }
     }
@@ -154,11 +156,10 @@ bitset<T> Encrypter<T>::bruteforce(bitset<T> plainText,
 template<size_t T>
 bitset <T> Encrypter<T>::chainLookup(bitset <T> start, int rainbowFunction, int chainLength) {
 
-
     bitset<T> key = start;
 
     for (int i = 1; i < (chainLength - rainbowFunction); i++) {
-
+        cout << key << endl;
         key = Encrypter<T>::md5Redux(key);
 
         bitset<T> bitI(i);
@@ -213,6 +214,7 @@ unordered_map<bitset<T>, bitset<T>> Encrypter<T>::loadFromFile(string path) {
     if (filestream.is_open()) {
         while (getline(filestream, line)) {
 
+
             int del_position = line.find(":");
             string first = line.substr(0, del_position);
             string last = line.substr(del_position + 1, line.length());
@@ -220,7 +222,10 @@ unordered_map<bitset<T>, bitset<T>> Encrypter<T>::loadFromFile(string path) {
             bitset<T> key(first);
             bitset<T> value(last);
 
-            map[key] = value;
+            auto it = map.find(key);
+            if(it == map.end()){
+                map.insert(make_pair(key, value));
+            }
         }
     }
 
