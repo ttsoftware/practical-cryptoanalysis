@@ -31,24 +31,24 @@ void Encrypter<T>::chain(bitset <T> input,
 }
 
 template<size_t T>
-bitset<T> hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>> *map){
+bitset<T> Encrypter<T>::hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>> *map){
     int chainLength = pow(2, 10);
     bitset<T> key = cipher;
 
-    bitset<T> first = (*map).find(key);
+    auto it = (*map).find(key);
 
-    if(first != (*map).end()){
-        return chainLookup(first, 0);
+    if(it != (*map).end()){
+        return Encrypter<T>::chainLookup(it->second, 0, chainLength);
     }
 
     for(int i = 1; i < chainLength; i++){
         key = Encrypter<T>::rainbowLookup(key, i, chainLength);
 
-        bitset<T> startValue = (*map).find(key);
+        it = (*map).find(key);
 
-        if(startValue != (*map).end()){
+        if(it != (*map).end()){
             //Found a match on the cipher
-            return chainLookup(startValue, i);
+            return Encrypter<T>::chainLookup(it->second, i, chainLength);
         }
     }
 
@@ -101,6 +101,19 @@ bitset<28> Encrypter<T>::md5Redux(bitset <T> input) {
     return Encrypter<8 * MD5_DIGEST_LENGTH>::reduceSize(md5Bits);
 }
 
+template <size_t T>
+void Encrypter<T>::breakKey(unordered_map<bitset<T>, bitset<T>> *map,
+              bitset<T> challenge, bitset<T> secret) {
+
+    bitset<T> cipher = Encrypter<T>::encrypt(secret, challenge);
+    bitset<T> result = Encrypter<T>::hax(cipher, map);
+
+    cout << "Result:" << endl;
+    cout << result << endl;
+    cout << "Actual:" << endl;
+    cout << secret << endl;
+}
+
 template<size_t T>
 bitset <T> Encrypter<T>::bruteforce(bitset <T> plainText,
                                     bitset <T> cipherText,
@@ -139,7 +152,7 @@ bitset <T> Encrypter<T>::bruteforce(bitset <T> plainText,
 }
 
 template<size_t T>
-bitset <T> chainLookup(bitset <T> start, int rainbowFunction, int chainLength) {
+bitset <T> Encrypter<T>::chainLookup(bitset <T> start, int rainbowFunction, int chainLength) {
 
     bitset <T> key = start;
 

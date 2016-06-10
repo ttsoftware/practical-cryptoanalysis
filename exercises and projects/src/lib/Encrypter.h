@@ -36,6 +36,8 @@ public:
 
     static bitset<T> hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T> > *map);
 
+    static void breakKey(unordered_map<bitset<T>, bitset<T>> *map, bitset<T> challenge, bitset<T> secret);
+
     static void chain(bitset<T> input,
                       bitset<T> challenge,
                       unordered_map<bitset<T>, bitset<T>> *rainbowTable);

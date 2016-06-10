@@ -2,19 +2,6 @@
 
 using namespace std;
 
-template<size_t T>
-void breakKey(unordered_map<bitset<T>, bitset<T>> *map,
-              bitset<T> challenge, bitset<T> secret) {
-
-    bitset<T> cipher = Encrypter<T>::encrypt(secret, challenge);
-    bitset<T> result = Encrypter<T>::hax(cipher, map);
-
-    cout << "Result:" << endl;
-    cout << result << endl;
-    cout << "Actual:" << endl;
-    cout << secret << endl;
-}
-
 void threadRainbowTable(bitset<28> challenge,
                         int chainCount,
                         int maxRand,
@@ -63,13 +50,14 @@ void buildRainbowTable(bitset<28> challenge) {
 int main() {
 
     bitset<28> challenge("1010101010101010101010101010");
+    bitset<28> key("1000000000000000000000000000");
 
-    buildRainbowTable(challenge);
+    //buildRainbowTable(challenge);
 
-    /*
-    unordered_map<bitset<28>, bitset<28>> map1 = Encrypter<28>::loadFromFile("rainbow_table.txt");
-    unordered_map<bitset<28>, bitset<28>> map2 = Encrypter<28>::loadFromFile("rainbow_table_multi.txt");
-    */
+    unordered_map<bitset<28>, bitset<28>> map = Encrypter<28>::loadFromFile("/projects/rainbow_table_challenge_multi.txt");
+//    unordered_map<bitset<28>, bitset<28>> map2 = Encrypter<28>::loadFromFile("rainbow_table_multi.txt");
+
+    Encrypter<28>::breakKey(&map, challenge, key);
 
     /*if (map1.size() != map2.size()) {
         throw exception();
