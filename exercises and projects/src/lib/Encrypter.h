@@ -16,6 +16,8 @@ using namespace std;
 template<size_t T> class Encrypter {
 
 public:
+    static bitset<T> encrypt(bitset<T> key, bitset<T> plaintext);
+
     static bitset<28> md5Redux(bitset<T> input);
 
     static bitset<T> rainbowLookup(bitset<T> cipher, int rainbowFunction, int chainLength);
@@ -32,13 +34,13 @@ public:
 
     static unordered_map<bitset<T>, bitset<T>> loadFromFile(string path);
 
-private:
     static bitset<T> increment(bitset<T> input);
-
-    static bitset<56> concat(bitset<28> inputA, bitset<28> inputB);
 
     static bitset<28> reduceSize(bitset<T> input);
 
+    static bitset<56> concat(bitset<28> inputA, bitset<28> inputB);
+
+private:
     static bitset<T> chainLookup(bitset<T> start, int rainbowFunction, int chainLength);
 };
 

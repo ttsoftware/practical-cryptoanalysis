@@ -1,6 +1,11 @@
 #include "Encrypter.h"
 
 template<size_t T>
+bitset<T> Encrypter<T>::encrypt(bitset<T> key, bitset<T> plaintext) {
+    return key ^ plaintext;
+}
+
+template<size_t T>
 void Encrypter<T>::chain(bitset<T> input,
                          bitset<T> challenge,
                          unordered_map<bitset<T>, bitset<T>> *rainbowTable) {
@@ -66,15 +71,13 @@ bitset<T> Encrypter<T>::rainbowLookup(bitset<T> cipher, int rainbowFunction, int
 template<size_t T>
 bitset<28> Encrypter<T>::md5Redux(bitset<T> input) {
 
-    bitset<28> reducedInput = Encrypter<T>::reduceSize(input);
-
-    char inputChars[28];
-    for (int i = 0; i < 28; i++) {
-        inputChars[i] = reducedInput[i];
+    char inputChars[T];
+    for (int i = 0; i < T; i++) {
+        inputChars[i] = input[i];
     }
 
     unsigned char digest[MD5_DIGEST_LENGTH];
-    MD5((unsigned char *) &inputChars, 28, (unsigned char *) &digest);
+    MD5((unsigned char *) &inputChars, T, (unsigned char *) &digest);
 
     bitset<8 * MD5_DIGEST_LENGTH> md5Bits;
     for (int i = 0; i < MD5_DIGEST_LENGTH; ++i) {
