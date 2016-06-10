@@ -30,15 +30,20 @@ public:
 
     static bitset<28> reduceSize(bitset<T> input);
 
+    static bitset<T> rainbowLookup(bitset<T> cipher, int rainbowFunction, int chainLength);
+
+    static bitset<T> hax(bitset<T> cipher, unordered_map< bitset<T>, bitset<T> > *map);
+
     static void chain(bitset<T> input,
                       unordered_map<bitset<T>, bitset<T>> *coveredBits);
 
-    static void writeToFile(unordered_map<bitset<T>, bitset<T>> *coveredBits, string path);
+    static void writeToFile(unordered_map<bitset<T>, bitset<T>> *map, string path);
 
     static unordered_map<bitset<T>, bitset<T>> loadFromFile(string path);
 
 private:
     static bitset<T> increment(bitset<T> input);
+    static bitset<T> chainLookup(bitset<T> start, int i, int chainLength);
 };
 
 // We need to include at compile-time, otherwise <T> will not be available at link-time

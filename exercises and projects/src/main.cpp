@@ -2,6 +2,18 @@
 
 using namespace std;
 
+template <size_t T>
+void breakKey(unordered_map<bitset<T>, bitset<T>> * map, bitset<T> challenge, bitset<T> secret){
+    bitset<T> cipher = Encrypter<T>::encrypt(secret, challenge);
+
+    bitset<T> result = Encrypter<T>::hax(cipher,map);
+
+    cout << "Result:" << endl;
+    cout << result << endl;
+    cout << "Actual:" << endl;
+    cout << secret << endl;
+}
+
 void threadRainbowTable(int chainCount, int maxRand, unordered_map<bitset<28>, bitset<28>> *rainbowTable) {
 
     for (int i = 0; i < chainCount; i++) {

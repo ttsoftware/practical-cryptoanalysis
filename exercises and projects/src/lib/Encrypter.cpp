@@ -27,6 +27,49 @@ void Encrypter<T>::chain(bitset<T> input,
 }
 
 template<size_t T>
+bitset<T> hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>> *coveredBits){
+    int chainLength = pow(2, 10);
+    bitset<T> key = cipher;
+
+    bitset<T> first = (*coveredBits).find(key);
+
+    if(first != (*coveredBits).end()){
+        return chainLookup(first, 0);
+    }
+
+    for(int i = 1; i < chainLength; i++){
+        key = Encrypter<T>::rainbowLookup(key, i, chainLength);
+
+        bitset<T> startValue = (*coveredBits).find(key);
+
+        if(startValue != (*coveredBits).end()){
+            //Found a match on the cipher
+            return chainLookup(startValue, i);
+        }
+    }
+
+    return NULL;
+}
+
+
+
+template<size_t T>
+bitset<T> Encrypter<T>::rainbowLookup(bitset<T> cipher, int rainbowFunction, int chainLength){
+
+    bitset<T> temp = cipher;
+
+    for (; rainbowFunction < chainLength; rainbowFunction++) {
+        bitset<T> bitI(rainbowFunction);
+
+        temp = Encrypter<T>::md5Redux(temp);
+
+        temp ^= bitI;
+    }
+
+    return temp;
+}
+
+template<size_t T>
 bitset<28> Encrypter<T>::md5Redux(bitset<T> input) {
 
     bitset<28> reducedInput = Encrypter<T>::reduceSize(input);
@@ -93,6 +136,22 @@ bitset<T> Encrypter<T>::bruteforce(bitset<T> plainText,
 }
 
 template<size_t T>
+bitset<T> chainLookup(bitset<T> start, int rainbowFunction, int chainLength){
+
+    bitset<T> key = start;
+
+    for(int i = 1; i < (chainLength - rainbowFunction); i++){
+
+        key = Encrypter<T>::md5Redux(key);
+
+        bitset<T> bitI(i);
+        key ^= bitI;
+    }
+
+    return key;
+}
+
+template<size_t T>
 bitset<T> Encrypter<T>::increment(bitset<T> input) {
     for (size_t i = 0; i < T; ++i) {
         // There will be no carry
@@ -153,11 +212,11 @@ unordered_map<bitset<T>, bitset<T>> Encrypter<T>::loadFromFile(string path) {
 }
 
 template<size_t T>
-void Encrypter<T>::writeToFile(unordered_map<bitset<T>, bitset<T>> *coveredBits, string path) {
+void Encrypter<T>::writeToFile(unordered_map<bitset<T>, bitset<T>> *map, string path) {
     ofstream dump;
     dump.open(path);
 
-    for (auto it = coveredBits->begin(); it != coveredBits->end(); ++it) {
+    for (auto it = map->begin(); it != map->end(); ++it) {
         dump << it->first << ":" << it->second << std::endl;
     }
 
