@@ -28,14 +28,14 @@ void Encrypter<T>::chain(bitset<T> input,
 }
 
 template<size_t T>
-void hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>> *coveredBits){
+bitset<T> hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>> *coveredBits){
     int chainLength = pow(2, 10);
     bitset<T> key = cipher;
 
     bitset<T> first = (*coveredBits).find(key);
 
     if(first != (*coveredBits).end()){
-        //Found a match on the cipher directly
+        return chainLookup(first, 0);
     }
 
     for(int i = 1; i < chainLength; i++){
@@ -45,9 +45,11 @@ void hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>> *coveredBits){
 
         if(startValue != (*coveredBits).end()){
             //Found a match on the cipher
-
+            return chainLookup(startValue, i);
         }
     }
+
+    return NULL;
 }
 
 

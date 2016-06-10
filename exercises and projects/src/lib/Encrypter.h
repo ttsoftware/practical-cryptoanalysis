@@ -32,7 +32,7 @@ public:
 
     static bitset<T> rainbowLookup(bitset<T> cipher, int rainbowFunction, int chainLength);
 
-    static void hax(bitset<T> cipher, unordered_map< bitset<T>, bitset<T> > *map);
+    static bitset<T> hax(bitset<T> cipher, unordered_map< bitset<T>, bitset<T> > *map);
 
     static void chain(bitset<T> input,
                       unordered_map<bitset<T>, bitset<T>> *coveredBits);
