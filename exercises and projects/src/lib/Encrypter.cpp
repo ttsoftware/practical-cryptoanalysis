@@ -27,7 +27,7 @@ void Encrypter<T>::chain(bitset<T> input,
 }
 
 template<size_t T>
-bitset<T> hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>> *coveredBits){
+bitset<T> hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>> *map){
     int chainLength = pow(2, 10);
     bitset<T> key = cipher;
 
@@ -198,11 +198,13 @@ unordered_map<bitset<T>, bitset<T>> Encrypter<T>::loadFromFile(string path) {
              */
 
             bitset<T> key(first);
-            bitset<T> value(0);
+            bitset<T> value(last);
 
             //cout << key << ":" << value << endl;
 
             map[key] = value;
+
+            cout << map[key] << endl;
         }
     }
 

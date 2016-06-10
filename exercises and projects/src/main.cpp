@@ -57,7 +57,7 @@ int main() {
     Encrypter<28>::writeToFile(&rainbowTable, "rainbow_table_multi.txt");
     */
 
-    unordered_map<bitset<28>, bitset<28>> map1 = Encrypter<28>::loadFromFile("rainbow_table.txt");
+    unordered_map<bitset<28>, bitset<28>> map1 = Encrypter<28>::loadFromFile("/projects/rainbow_table.txt");
     unordered_map<bitset<28>, bitset<28>> map2 = Encrypter<28>::loadFromFile("rainbow_table_multi.txt");
 
     /*if (map1.size() != map2.size()) {
