@@ -14,17 +14,16 @@ void Encrypter<T>::chain(bitset<T> input,
                          unordered_map<bitset<T>, bitset<T>> *coveredBits) {
 
     int chainLength = pow(2, 10);
-    bitset<28> *chain = new bitset<28>[chainLength];
-    chain[0] = input;
+    bitset<28> chain (input);
 
     for (int i = 1; i < chainLength; i++) {
         bitset<T> bitI(i);
 
-        chain[i] = Encrypter<T>::md5Redux(chain[i - 1]);
-        chain[i] ^= bitI;
+        chain = Encrypter<T>::md5Redux(chain);
+        chain ^= bitI;
     }
 
-    (*coveredBits)[input] = chain[chainLength - 1];
+    (*coveredBits)[input] = chain;
 }
 
 template<size_t T>
