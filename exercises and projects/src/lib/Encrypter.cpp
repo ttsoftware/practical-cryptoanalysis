@@ -7,23 +7,6 @@ bitset<T> Encrypter<T>::encrypt(bitset<T> key, bitset<T> plaintext) {
 }
 
 template<size_t T>
-void Encrypter<T>::chain(bitset<T> input,
-                         bitset<T> challenge,
-                         unordered_map<bitset<T>, bitset<T>> *rainbowTable) {
-
-    int chainLength = pow(2, 10);
-    bitset<28> chainDigest(input);
-
-    for (int i = 1; i < chainLength; i++) {
-        chainDigest = Encrypter<28>::encrypt(chainDigest, challenge);
-        bitset<28> bitI(i);
-        chainDigest ^= bitI;
-    }
-
-    (*rainbowTable)[input] = chainDigest;
-}
-
-template<size_t T>
 bitset<T> Encrypter<T>::hax(bitset<T> cipher, bitset<T> challenge, unordered_map<bitset<T>, bitset<T>> *map) {
     int chainLength = pow(2, 10);
     bitset<T> key = cipher;
