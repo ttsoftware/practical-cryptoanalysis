@@ -14,7 +14,7 @@ void Encrypter<T>::chain(bitset<T> input,
                          unordered_map<bitset<T>, bitset<T>> *coveredBits) {
 
     int chainLength = pow(2, 10);
-    bitset<28> chain (input);
+    bitset<28> chain(input);
 
     for (int i = 1; i < chainLength; i++) {
         bitset<T> bitI(i);
@@ -118,19 +118,36 @@ bitset<28> Encrypter<T>::reduceSize(bitset<T> input) {
 template<size_t T>
 unordered_map<bitset<T>, bitset<T>> Encrypter<T>::loadFromFile(string path) {
     string line;
-    ifstream dump(path);
+    ifstream filestream(path);
 
     unordered_map<bitset<T>, bitset<T>> map;
 
-    if (dump.is_open()) {
-        while (getline(dump, line)) {
+    if (filestream.is_open()) {
+        while (getline(filestream, line)) {
+
+            cout << line.length() << endl;
+
             int del_position = line.find(":");
             string first = line.substr(0, del_position);
             string last = line.substr(del_position + 1, line.length());
-            bitset<T> bits = bitset<T>(first);
-            map[bits] = stoi(last);
+
+            /*
+            cout << line << endl;
+            cout << first << endl;
+            cout << del_position << endl;
+            cout << last << endl;
+             */
+
+            bitset<T> key(first);
+            bitset<T> value(0);
+
+            //cout << key << ":" << value << endl;
+
+            map[key] = value;
         }
     }
+
+    filestream.close();
 
     return map;
 }
