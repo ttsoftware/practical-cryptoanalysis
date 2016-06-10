@@ -32,18 +32,18 @@ bitset<T> Encrypter<T>::hax(bitset<T> cipher, bitset<T> challenge, unordered_map
 
     if(it != (*map).end()){
         cout << "Looking for key: " << key << " start("<< 0 << "): " << it->second << endl;
-        return Encrypter<T>::rainbowLookup(it->second, challenge, 1, chainLength);
+        return Encrypter<T>::chain(it->second, challenge, 1, chainLength);
     }
 
     for (int i = 1; i < chainLength; i++) {
-        key = Encrypter<T>::rainbowLookup(key, challenge, i, chainLength);
+        key = Encrypter<T>::chain(key, challenge, i, chainLength);
 
         it = (*map).find(key);
 
         if (it != (*map).end()) {
             //Found a match on the cipher
             cout << "Looking for key: " << key << " start("<< i << "): " << it->second << endl;
-            return Encrypter<T>::rainbowLookup(it->second, challenge, 1, chainLength-i);
+            return Encrypter<T>::chain(it->second, challenge, 1, chainLength-i);
         }
     }
 
@@ -52,7 +52,10 @@ bitset<T> Encrypter<T>::hax(bitset<T> cipher, bitset<T> challenge, unordered_map
 
 
 template<size_t T>
-bitset<T> Encrypter<T>::rainbowLookup(bitset<T> cipher, bitset<T> challenge, int rainbowFunction, int chainLength) {
+bitset<T> Encrypter<T>::chain(bitset<T> cipher,
+                              bitset<T> challenge,
+                              int rainbowFunction,
+                              int chainLength) {
 
     bitset<T> temp = cipher;
 

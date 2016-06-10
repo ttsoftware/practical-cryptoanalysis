@@ -7,11 +7,14 @@ void threadRainbowTable(bitset<28> challenge,
                         int maxRand,
                         unordered_map<bitset<28>, bitset<28>> *rainbowTable) {
 
+    int chainLength = pow(2, 10);
+
     for (int i = 0; i < chainCount; i++) {
         int r = rand() % maxRand;
 
         bitset<28> input((unsigned long long int) r);
-        Encrypter<28>::chain(input, challenge, rainbowTable);
+
+        (*rainbowTable)[input] = Encrypter<28>::chain(input, challenge, 1, chainLength);
     }
 }
 
