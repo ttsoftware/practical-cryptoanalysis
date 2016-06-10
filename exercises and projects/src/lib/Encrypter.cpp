@@ -1,12 +1,9 @@
 #include "Encrypter.h"
 
 template<size_t T>
-mutex Encrypter<T>::coutMutex;
-
-template<size_t T>
-bitset<T> Encrypter<T>::encrypt(bitset<T> key,
-                                bitset<T> plaintext) {
-    return key ^ plaintext;
+bitset<T> Encrypter<T>::encrypt(bitset<T> key, bitset<T> plaintext) {
+    bitset<2 * T> concatted = Encrypter<2 * T>::concat(key, plaintext);
+    return Encrypter<2 * T>::md5Redux(concatted);
 }
 
 template<size_t T>
@@ -15,23 +12,19 @@ void Encrypter<T>::chain(bitset<T> input,
                          unordered_map<bitset<T>, bitset<T>> *rainbowTable) {
 
     int chainLength = pow(2, 10);
-    bitset<2 * T> chain(Encrypter<T>::concat(input, challenge));
     bitset<28> chainDigest(0);
 
     for (int i = 1; i < chainLength; i++) {
+        bitset<28> chainDigest = Encrypter<28>::encrypt(input, challenge);
         bitset<T> bitI(i);
-
-        chainDigest = Encrypter<2 * T>::md5Redux(chain);
         chainDigest ^= bitI;
-        // concat the challenge to the digest
-        chain = Encrypter<T>::concat(chainDigest, challenge);
     }
 
     (*rainbowTable)[input] = chainDigest;
 }
 
 template<size_t T>
-bitset<T> Encrypter<T>::hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>> *map){
+bitset<T> Encrypter<T>::hax(bitset<T> cipher, bitset<T> challenge, unordered_map<bitset<T>, bitset<T>> *map) {
     int chainLength = pow(2, 10);
     bitset<T> key = cipher;
 
@@ -39,18 +32,18 @@ bitset<T> Encrypter<T>::hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>
 
     if(it != (*map).end()){
         cout << "Looking for key: " << key << " start: " << it->second;
-        return Encrypter<T>::chainLookup(it->second, 0, chainLength);
+        return Encrypter<T>::chainLookup(it->second, challenge, 0, chainLength);
     }
 
     for (int i = 1; i < chainLength; i++) {
-        key = Encrypter<T>::rainbowLookup(key, i, chainLength);
+        key = Encrypter<T>::rainbowLookup(key, challenge, i, chainLength);
 
         it = (*map).find(key);
 
-        if(it != (*map).end()){
+        if (it != (*map).end()) {
             //Found a match on the cipher
             cout << "Looking for key: " << key << " start: " << it->second;
-            return Encrypter<T>::chainLookup(it->second, i, chainLength);
+            return Encrypter<T>::chainLookup(it->second, challenge, i, chainLength);
         }
     }
 
@@ -59,15 +52,14 @@ bitset<T> Encrypter<T>::hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>
 
 
 template<size_t T>
-bitset<T> Encrypter<T>::rainbowLookup(bitset<T> cipher, int rainbowFunction, int chainLength) {
+bitset<T> Encrypter<T>::rainbowLookup(bitset<T> cipher, bitset<T> challenge, int rainbowFunction, int chainLength) {
 
     bitset<T> temp = cipher;
 
     for (; rainbowFunction < chainLength; rainbowFunction++) {
+        temp = Encrypter<T>::encrypt(temp, challenge);
+
         bitset<T> bitI(rainbowFunction);
-
-        temp = Encrypter<T>::md5Redux(temp);
-
         temp ^= bitI;
     }
 
@@ -77,15 +69,13 @@ bitset<T> Encrypter<T>::rainbowLookup(bitset<T> cipher, int rainbowFunction, int
 template<size_t T>
 bitset<28> Encrypter<T>::md5Redux(bitset<T> input) {
 
-    bitset<28> reducedInput = Encrypter<T>::reduceSize(input);
-
-    char inputChars[28];
-    for (int i = 0; i < 28; i++) {
-        inputChars[i] = reducedInput[i];
+    char inputChars[T];
+    for (int i = 0; i < T; i++) {
+        inputChars[i] = input[i];
     }
 
     unsigned char digest[MD5_DIGEST_LENGTH];
-    MD5((unsigned char *) &inputChars, 28, (unsigned char *) &digest);
+    MD5((unsigned char *) &inputChars, T, (unsigned char *) &digest);
 
     bitset<8 * MD5_DIGEST_LENGTH> md5Bits;
     for (int i = 0; i < MD5_DIGEST_LENGTH; ++i) {
@@ -103,12 +93,12 @@ bitset<28> Encrypter<T>::md5Redux(bitset<T> input) {
     return Encrypter<8 * MD5_DIGEST_LENGTH>::reduceSize(md5Bits);
 }
 
-template <size_t T>
+template<size_t T>
 void Encrypter<T>::breakKey(unordered_map<bitset<T>, bitset<T>> *map,
-              bitset<T> challenge, bitset<T> secret) {
+                            bitset<T> challenge, bitset<T> secret) {
 
     bitset<T> cipher = Encrypter<T>::encrypt(secret, challenge);
-    bitset<T> result = Encrypter<T>::hax(cipher, map);
+    bitset<T> result = Encrypter<T>::hax(cipher, challenge, map);
 
     cout << "Result:" << endl;
     cout << result << endl;
@@ -117,51 +107,13 @@ void Encrypter<T>::breakKey(unordered_map<bitset<T>, bitset<T>> *map,
 }
 
 template<size_t T>
-bitset<T> Encrypter<T>::bruteforce(bitset<T> plainText,
-                                   bitset<T> cipherText,
-                                   time_t maxSeconds,
-                                   uint64_t keySpaceStart,
-                                   uint64_t keySpaceEnd) {
-
-    thread::id tid = this_thread::get_id();
-
-    cout << "Thread: " << tid << " : " << keySpaceStart << " - " << keySpaceEnd << endl;
-
-    bitset<T> incKey(keySpaceStart);
-    bitset<T> tempCipher;
-
-    uint64_t cycleCount = 0;
-
-    // stop if we reach the end of keyspace
-    while (time(NULL) <= maxSeconds && incKey.count() < keySpaceEnd) {
-        tempCipher = Encrypter<T>::encrypt(incKey, plainText);
-
-        if (tempCipher == cipherText) {
-            cout << incKey << endl;
-            break;
-        }
-
-        incKey = Encrypter<T>::increment(incKey);
-        cycleCount++;
-    }
-
-    coutMutex.lock();
-    cout << "Thread: " << tid << " : " << cycleCount << " cycles" << endl;
-    cout << "Thread: " << tid << " : " << incKey << " key" << endl;
-    coutMutex.unlock();
-
-    return incKey;
-}
-
-template<size_t T>
-bitset <T> Encrypter<T>::chainLookup(bitset <T> start, int rainbowFunction, int chainLength) {
+bitset<T> Encrypter<T>::chainLookup(bitset<T> start, bitset<T> challenge, int rainbowFunction, int chainLength) {
 
     bitset<T> key = start;
 
     for (int i = 1; i < (chainLength - rainbowFunction); i++) {
         cout << key << endl;
-        key = Encrypter<T>::md5Redux(key);
-
+        key = Encrypter<T>::encrypt(key, challenge);
         bitset<T> bitI(i);
         key ^= bitI;
     }

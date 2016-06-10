@@ -18,7 +18,7 @@ void threadRainbowTable(bitset<28> challenge,
 void buildRainbowTable(bitset<28> challenge) {
 
     int maxRand = pow(2, 28);
-    int maxChains = pow(2, 18);
+    int maxChains = pow(2, 4);
 
     unordered_map<bitset<28>, bitset<28>> rainbowTable;
 
@@ -52,10 +52,9 @@ int main() {
     bitset<28> challenge("1010101010101010101010101010");
     bitset<28>       key("1000000000000000000000000001");
 
-    //buildRainbowTable(challenge);
+    buildRainbowTable(challenge);
 
-    unordered_map<bitset<28>, bitset<28>> map = Encrypter<28>::loadFromFile("/projects/rainbow_table_challenge_multi.txt");
-//    unordered_map<bitset<28>, bitset<28>> map2 = Encrypter<28>::loadFromFile("rainbow_table_multi.txt");
+    unordered_map<bitset<28>, bitset<28>> map = Encrypter<28>::loadFromFile("rainbow_table_challenge_multi.txt");
 
     Encrypter<28>::breakKey(&map, challenge, key);
 
