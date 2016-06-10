@@ -12,10 +12,10 @@ void Encrypter<T>::chain(bitset<T> input,
                          unordered_map<bitset<T>, bitset<T>> *rainbowTable) {
 
     int chainLength = pow(2, 10);
-    bitset<28> chainDigest(0);
+    bitset<28> chainDigest = input;
 
     for (int i = 1; i < chainLength; i++) {
-        bitset<28> chainDigest = Encrypter<28>::encrypt(input, challenge);
+        chainDigest = Encrypter<28>::encrypt(chainDigest, challenge);
         bitset<T> bitI(i);
         chainDigest ^= bitI;
     }
@@ -31,7 +31,7 @@ bitset<T> Encrypter<T>::hax(bitset<T> cipher, bitset<T> challenge, unordered_map
     auto it = (*map).find(key);
 
     if(it != (*map).end()){
-        cout << "Looking for key: " << key << " start: " << it->second;
+        cout << "Looking for key: " << key << " start("<< 0 << "): " << it->second << endl;
         return Encrypter<T>::chainLookup(it->second, challenge, 0, chainLength);
     }
 
@@ -42,8 +42,8 @@ bitset<T> Encrypter<T>::hax(bitset<T> cipher, bitset<T> challenge, unordered_map
 
         if (it != (*map).end()) {
             //Found a match on the cipher
-            cout << "Looking for key: " << key << " start: " << it->second;
-            return Encrypter<T>::chainLookup(it->second, challenge, i, chainLength);
+            cout << "Looking for key: " << key << " start("<< i << "): " << it->second << endl;
+            return Encrypter<T>::rainbowLookup(it->second, challenge, 1, chainLength-i);
         }
     }
 
@@ -58,9 +58,10 @@ bitset<T> Encrypter<T>::rainbowLookup(bitset<T> cipher, bitset<T> challenge, int
 
     for (; rainbowFunction < chainLength; rainbowFunction++) {
         temp = Encrypter<T>::encrypt(temp, challenge);
-
         bitset<T> bitI(rainbowFunction);
         temp ^= bitI;
+
+        cout << rainbowFunction << ": " << temp << endl;
     }
 
     return temp;
@@ -111,8 +112,8 @@ bitset<T> Encrypter<T>::chainLookup(bitset<T> start, bitset<T> challenge, int ra
 
     bitset<T> key = start;
 
-    for (int i = 1; i < (chainLength - rainbowFunction); i++) {
-        cout << key << endl;
+    for (int i = 1; i <= chainLength; i++) {
+        cout << i << ": " << key << endl;
         key = Encrypter<T>::encrypt(key, challenge);
         bitset<T> bitI(i);
         key ^= bitI;

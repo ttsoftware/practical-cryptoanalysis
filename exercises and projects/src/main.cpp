@@ -50,17 +50,17 @@ void buildRainbowTable(bitset<28> challenge, string filename) {
 int main() {
 
     bitset<28> challenge("1010101010101010101010101010");
-    bitset<28>       key("1000000000000000000000000001");
+    bitset<28>       key("1000000000000000000001100001");
 
-    string filename = "rainbow_table_encrypt.txt";
+    string filename = "/projects/rainbow_table_challenge_multi.txt";
 
-    unordered_map<bitset<28>, bitset<28>> map = Encrypter<28>::loadFromFile("/projects/rainbow_table_challenge_multi.txt");
+//    unordered_map<bitset<28>, bitset<28>> map = Encrypter<28>::loadFromFile(filename);
 
-//    buildRainbowTable(challenge, filename);
+    buildRainbowTable(challenge, filename);
 
     // unordered_map<bitset<28>, bitset<28>> map = Encrypter<28>::loadFromFile("rainbow_table_challenge_multi.txt");
 
-    // Encrypter<28>::breakKey(&map, challenge, key);
+//     Encrypter<28>::breakKey(&map, challenge, key);
 
     /*if (map1.size() != map2.size()) {
         throw exception();
