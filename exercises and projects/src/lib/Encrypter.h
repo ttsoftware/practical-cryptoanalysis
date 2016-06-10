@@ -13,8 +13,7 @@
 
 using namespace std;
 
-template<size_t T>
-class Encrypter {
+template<size_t T> class Encrypter {
 
 public:
     static mutex coutMutex;
@@ -48,7 +47,7 @@ public:
 private:
     static bitset<T> increment(bitset<T> input);
 
-    static bitset<T> chainLookup(bitset<T> start, int i, int chainLength);
+    static bitset<T> chainLookup(bitset<T> start, int rainbowFunction, int chainLength);
 };
 
 // We need to include at compile-time, otherwise <T> will not be available at link-time
