@@ -4,22 +4,22 @@ template<size_t T>
 mutex Encrypter<T>::coutMutex;
 
 template<size_t T>
-bitset <T> Encrypter<T>::encrypt(bitset <T> key,
-                                 bitset <T> plaintext) {
+bitset<T> Encrypter<T>::encrypt(bitset<T> key,
+                                bitset<T> plaintext) {
     return key ^ plaintext;
 }
 
 template<size_t T>
-void Encrypter<T>::chain(bitset <T> input,
-                         bitset <T> challenge,
-                         unordered_map <bitset<T>, bitset<T>> *rainbowTable) {
+void Encrypter<T>::chain(bitset<T> input,
+                         bitset<T> challenge,
+                         unordered_map<bitset<T>, bitset<T>> *rainbowTable) {
 
     int chainLength = pow(2, 10);
     bitset<2 * T> chain(Encrypter<T>::concat(input, challenge));
     bitset<28> chainDigest(0);
 
     for (int i = 1; i < chainLength; i++) {
-        bitset <T> bitI(i);
+        bitset<T> bitI(i);
 
         chainDigest = Encrypter<2 * T>::md5Redux(chain);
         chainDigest ^= bitI;
@@ -41,7 +41,7 @@ bitset<T> Encrypter<T>::hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>
         return Encrypter<T>::chainLookup(it->second, 0, chainLength);
     }
 
-    for(int i = 1; i < chainLength; i++){
+    for (int i = 1; i < chainLength; i++) {
         key = Encrypter<T>::rainbowLookup(key, i, chainLength);
 
         it = (*map).find(key);
@@ -57,12 +57,12 @@ bitset<T> Encrypter<T>::hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>
 
 
 template<size_t T>
-bitset <T> Encrypter<T>::rainbowLookup(bitset <T> cipher, int rainbowFunction, int chainLength) {
+bitset<T> Encrypter<T>::rainbowLookup(bitset<T> cipher, int rainbowFunction, int chainLength) {
 
-    bitset <T> temp = cipher;
+    bitset<T> temp = cipher;
 
     for (; rainbowFunction < chainLength; rainbowFunction++) {
-        bitset <T> bitI(rainbowFunction);
+        bitset<T> bitI(rainbowFunction);
 
         temp = Encrypter<T>::md5Redux(temp);
 
@@ -73,7 +73,7 @@ bitset <T> Encrypter<T>::rainbowLookup(bitset <T> cipher, int rainbowFunction, i
 }
 
 template<size_t T>
-bitset<28> Encrypter<T>::md5Redux(bitset <T> input) {
+bitset<28> Encrypter<T>::md5Redux(bitset<T> input) {
 
     bitset<28> reducedInput = Encrypter<T>::reduceSize(input);
 
@@ -115,18 +115,18 @@ void Encrypter<T>::breakKey(unordered_map<bitset<T>, bitset<T>> *map,
 }
 
 template<size_t T>
-bitset <T> Encrypter<T>::bruteforce(bitset <T> plainText,
-                                    bitset <T> cipherText,
-                                    time_t maxSeconds,
-                                    uint64_t keySpaceStart,
-                                    uint64_t keySpaceEnd) {
+bitset<T> Encrypter<T>::bruteforce(bitset<T> plainText,
+                                   bitset<T> cipherText,
+                                   time_t maxSeconds,
+                                   uint64_t keySpaceStart,
+                                   uint64_t keySpaceEnd) {
 
     thread::id tid = this_thread::get_id();
 
     cout << "Thread: " << tid << " : " << keySpaceStart << " - " << keySpaceEnd << endl;
 
-    bitset <T> incKey(keySpaceStart);
-    bitset <T> tempCipher;
+    bitset<T> incKey(keySpaceStart);
+    bitset<T> tempCipher;
 
     uint64_t cycleCount = 0;
 
@@ -154,13 +154,14 @@ bitset <T> Encrypter<T>::bruteforce(bitset <T> plainText,
 template<size_t T>
 bitset <T> Encrypter<T>::chainLookup(bitset <T> start, int rainbowFunction, int chainLength) {
 
-    bitset <T> key = start;
+
+    bitset<T> key = start;
 
     for (int i = 1; i < (chainLength - rainbowFunction); i++) {
 
         key = Encrypter<T>::md5Redux(key);
 
-        bitset <T> bitI(i);
+        bitset<T> bitI(i);
         key ^= bitI;
     }
 
@@ -168,7 +169,7 @@ bitset <T> Encrypter<T>::chainLookup(bitset <T> start, int rainbowFunction, int 
 }
 
 template<size_t T>
-bitset <T> Encrypter<T>::increment(bitset <T> input) {
+bitset<T> Encrypter<T>::increment(bitset<T> input) {
     for (size_t i = 0; i < T; ++i) {
         // There will be no carry
         if (input[i] == 0) {
@@ -182,7 +183,7 @@ bitset <T> Encrypter<T>::increment(bitset <T> input) {
 }
 
 template<size_t T>
-bitset<28> Encrypter<T>::reduceSize(bitset <T> input) {
+bitset<28> Encrypter<T>::reduceSize(bitset<T> input) {
     bitset<28> returnBits(0);
     for (size_t i = 0; i < 28; ++i) {
         returnBits[i] = input[i];
@@ -203,11 +204,11 @@ bitset<56> Encrypter<T>::concat(bitset<28> inputA, bitset<28> inputB) {
 }
 
 template<size_t T>
-unordered_map <bitset<T>, bitset<T>> Encrypter<T>::loadFromFile(string path) {
+unordered_map<bitset<T>, bitset<T>> Encrypter<T>::loadFromFile(string path) {
     string line;
     ifstream filestream(path);
 
-    unordered_map <bitset<T>, bitset<T>> map;
+    unordered_map<bitset<T>, bitset<T>> map;
 
     if (filestream.is_open()) {
         while (getline(filestream, line)) {
@@ -216,8 +217,8 @@ unordered_map <bitset<T>, bitset<T>> Encrypter<T>::loadFromFile(string path) {
             string first = line.substr(0, del_position);
             string last = line.substr(del_position + 1, line.length());
 
-            bitset <T> key(first);
-            bitset <T> value(last);
+            bitset<T> key(first);
+            bitset<T> value(last);
 
             map[key] = value;
         }
@@ -229,7 +230,7 @@ unordered_map <bitset<T>, bitset<T>> Encrypter<T>::loadFromFile(string path) {
 }
 
 template<size_t T>
-void Encrypter<T>::writeToFile(unordered_map <bitset<T>, bitset<T>> *map, string path) {
+void Encrypter<T>::writeToFile(unordered_map<bitset<T>, bitset<T>> *map, string path) {
     ofstream dump;
     dump.open(path);
 
