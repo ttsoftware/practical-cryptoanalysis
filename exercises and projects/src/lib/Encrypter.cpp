@@ -12,11 +12,11 @@ void Encrypter<T>::chain(bitset<T> input,
                          unordered_map<bitset<T>, bitset<T>> *rainbowTable) {
 
     int chainLength = pow(2, 10);
-    bitset<28> chainDigest = input;
+    bitset<28> chainDigest(input);
 
     for (int i = 1; i < chainLength; i++) {
         chainDigest = Encrypter<28>::encrypt(chainDigest, challenge);
-        bitset<T> bitI(i);
+        bitset<28> bitI(i);
         chainDigest ^= bitI;
     }
 
@@ -32,7 +32,7 @@ bitset<T> Encrypter<T>::hax(bitset<T> cipher, bitset<T> challenge, unordered_map
 
     if(it != (*map).end()){
         cout << "Looking for key: " << key << " start("<< 0 << "): " << it->second << endl;
-        return Encrypter<T>::chainLookup(it->second, challenge, 0, chainLength);
+        return Encrypter<T>::rainbowLookup(it->second, challenge, 1, chainLength);
     }
 
     for (int i = 1; i < chainLength; i++) {
@@ -96,7 +96,8 @@ bitset<28> Encrypter<T>::md5Redux(bitset<T> input) {
 
 template<size_t T>
 void Encrypter<T>::breakKey(unordered_map<bitset<T>, bitset<T>> *map,
-                            bitset<T> challenge, bitset<T> secret) {
+                            bitset<T> challenge,
+                            bitset<T> secret) {
 
     bitset<T> cipher = Encrypter<T>::encrypt(secret, challenge);
     bitset<T> result = Encrypter<T>::hax(cipher, challenge, map);
@@ -105,21 +106,6 @@ void Encrypter<T>::breakKey(unordered_map<bitset<T>, bitset<T>> *map,
     cout << result << endl;
     cout << "Actual:" << endl;
     cout << secret << endl;
-}
-
-template<size_t T>
-bitset<T> Encrypter<T>::chainLookup(bitset<T> start, bitset<T> challenge, int rainbowFunction, int chainLength) {
-
-    bitset<T> key = start;
-
-    for (int i = 1; i <= chainLength; i++) {
-        cout << i << ": " << key << endl;
-        key = Encrypter<T>::encrypt(key, challenge);
-        bitset<T> bitI(i);
-        key ^= bitI;
-    }
-
-    return key;
 }
 
 template<size_t T>
@@ -176,7 +162,7 @@ unordered_map<bitset<T>, bitset<T>> Encrypter<T>::loadFromFile(string path) {
             bitset<T> value(last);
 
             auto it = map.find(key);
-            if(it == map.end()){
+            if (it == map.end()) {
                 map.insert(make_pair(key, value));
             }
         }
