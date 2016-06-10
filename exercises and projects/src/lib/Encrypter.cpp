@@ -31,18 +31,18 @@ bitset<T> hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T>> *map){
     int chainLength = pow(2, 10);
     bitset<T> key = cipher;
 
-    bitset<T> first = (*coveredBits).find(key);
+    bitset<T> first = (*map).find(key);
 
-    if(first != (*coveredBits).end()){
+    if(first != (*map).end()){
         return chainLookup(first, 0);
     }
 
     for(int i = 1; i < chainLength; i++){
         key = Encrypter<T>::rainbowLookup(key, i, chainLength);
 
-        bitset<T> startValue = (*coveredBits).find(key);
+        bitset<T> startValue = (*map).find(key);
 
-        if(startValue != (*coveredBits).end()){
+        if(startValue != (*map).end()){
             //Found a match on the cipher
             return chainLookup(startValue, i);
         }
