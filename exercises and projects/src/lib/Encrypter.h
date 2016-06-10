@@ -13,7 +13,8 @@
 
 using namespace std;
 
-template<size_t T> class Encrypter {
+template<size_t T>
+class Encrypter {
 
 public:
     static mutex coutMutex;
@@ -30,12 +31,15 @@ public:
 
     static bitset<28> reduceSize(bitset<T> input);
 
+    static bitset<56> concat(bitset<28> inputA, bitset<28> inputB);
+
     static bitset<T> rainbowLookup(bitset<T> cipher, int rainbowFunction, int chainLength);
 
-    static bitset<T> hax(bitset<T> cipher, unordered_map< bitset<T>, bitset<T> > *map);
+    static bitset<T> hax(bitset<T> cipher, unordered_map<bitset<T>, bitset<T> > *map);
 
     static void chain(bitset<T> input,
-                      unordered_map<bitset<T>, bitset<T>> *coveredBits);
+                      bitset<T> challenge,
+                      unordered_map<bitset<T>, bitset<T>> *rainbowTable);
 
     static void writeToFile(unordered_map<bitset<T>, bitset<T>> *map, string path);
 
@@ -43,6 +47,7 @@ public:
 
 private:
     static bitset<T> increment(bitset<T> input);
+
     static bitset<T> chainLookup(bitset<T> start, int i, int chainLength);
 };
 
