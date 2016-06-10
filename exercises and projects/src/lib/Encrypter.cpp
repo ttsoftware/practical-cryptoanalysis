@@ -6,7 +6,6 @@ bitset<T> Encrypter<T>::encrypt(bitset<T> key, bitset<T> plaintext) {
     return Encrypter<2 * T>::md5Redux(concatted);
 }
 
-
 template<size_t T>
 bitset<T> Encrypter<T>::hax(bitset<T> cipher, bitset<T> challenge, unordered_map<bitset<T>, bitset<T>> *map) {
     int chainLength = pow(2, 10);
