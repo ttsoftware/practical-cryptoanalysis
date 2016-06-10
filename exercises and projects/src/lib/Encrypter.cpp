@@ -61,7 +61,6 @@ bitset<T> Encrypter<T>::rainbowLookup(bitset<T> cipher, int rainbowFunction, int
         bitset<T> bitI(rainbowFunction);
 
         temp = Encrypter<T>::md5Redux(temp);
-
         temp ^= bitI;
     }
 
@@ -111,13 +110,11 @@ void Encrypter<T>::breakKey(unordered_map<bitset<T>, bitset<T>> *map,
 template<size_t T>
 bitset<T> Encrypter<T>::chainLookup(bitset<T> start, int rainbowFunction, int chainLength) {
 
-
     bitset<T> key = start;
 
     for (int i = 1; i < (chainLength - rainbowFunction); i++) {
 
         key = Encrypter<T>::md5Redux(key);
-
         bitset<T> bitI(i);
         key ^= bitI;
     }
