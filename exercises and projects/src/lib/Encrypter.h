@@ -16,30 +16,13 @@ using namespace std;
 template <size_t T> class Encrypter {
 
 public:
-    static mutex coutMutex;
+    static void writeToFile(unordered_map<bitset<T>, bitset<T>> *coveredBits, string path);
 
-    static bitset<T> bruteforce(bitset<T> plainText,
-                                bitset<T> cipherText,
-                                time_t maxSeconds,
-                                uint64_t keySpaceStart,
-                                uint64_t keySpaceEnd);
-
-    static bitset<T> encrypt(bitset<T> key, bitset<T> plaintext);
-
-    static bitset<20> md5Redux(bitset<T> input);
-
-    static bitset<20> reduceSize(bitset<T> input);
-
-    static void chain(bitset<T> input,
-                      unordered_map<bitset<20>, int> *coveredBits);
-
-    static void writeToFile(unordered_map<bitset<20>, int> *coveredBits, string path);
-
-    static void writeToFile(int* graph, int graphSize, string path);
-
-    static unordered_map<bitset<20>, int> loadFromFile(string path);
+    static unordered_map<bitset<T>, bitset<T>> loadFromFile(string path);
 
 private:
+    static bitset<20> reduceSize(bitset<T> input);
+
     static bitset<T> increment(bitset<T> input);
 };
 
