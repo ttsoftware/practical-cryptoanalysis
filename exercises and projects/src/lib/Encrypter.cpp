@@ -20,7 +20,7 @@ bitset<T> Encrypter<T>::hax(bitset<T> cipher, bitset<T> challenge, unordered_map
 
     bitset<T> prev;
 
-    for (int i = 1; i <= chainLength; i++) {
+    for (int i = chainLength; i >= 1; i--) {
         prev = key;
         key = Encrypter<T>::chain(cipher, challenge, i, chainLength, false);
 
@@ -74,57 +74,24 @@ bitset<28> Encrypter<T>::md5Redux(bitset<T> input) {
 
     char inputChars[T];
     for (int i = 0; i < T; i++) {
-        inputChars[i] = input[i];
+        inputChars[T-i-1] = input[i];
     }
 
     unsigned char digest[MD5_DIGEST_LENGTH];
     MD5((unsigned char *) &inputChars, T, (unsigned char *) &digest);
 
     bitset<8 * MD5_DIGEST_LENGTH> md5Bits;
-    //For all characters in digest
-    for (int i = 0; i < MD5_DIGEST_LENGTH; ++i) {
 
-        //Get character
-        unsigned char c = digest[i];
-
-        //loop through bits in character
-        for (int j = 7; j >= 0 && c; --j) {
-            if (c & 0x01) {
-                // if right-most bit is 1, we set the (8*i+j) bit to 1
-                md5Bits.set(8 * i + j);
-            }
-            // shift c 1 to the right
-            c >>= 1;
-        }
-    }
-
-    cout << "md5Redux:" << endl;
-    cout << md5Bits << endl;
-
-    return Encrypter<8 * MD5_DIGEST_LENGTH>::reduceSize(md5Bits);
-}
-
-template<size_t T>
-bitset<28> Encrypter<T>::testMD5(bitset<T> input){
-    char inputChars[T];
-    for (int i = 0; i < T; i++) {
-        inputChars[i] = input[i];
-    }
-
-    unsigned char digest[MD5_DIGEST_LENGTH];
-    MD5((unsigned char *) &inputChars, T, (unsigned char *) &digest);
-
-    bitset<8 * MD5_DIGEST_LENGTH> md5Bits;
     for (int i = 0; i < MD5_DIGEST_LENGTH; ++i) {
         bitset<128> temp(digest[i]);
 
         temp <<= (MD5_DIGEST_LENGTH - i - 1)*8;
 
         md5Bits ^= temp;
-        bitset<8> test(digest[i]);
-        cout << "XOR char'" << test << "' at position "<< i << ":" << endl;
-        cout << temp << endl;
-        cout << md5Bits << endl;
+//        bitset<8> test(digest[i]);
+//        cout << "XOR char'" << test << "' at position "<< i << ":" << endl;
+//        cout << temp << endl;
+//        cout << md5Bits << endl;
     }
 
     return Encrypter<8 * MD5_DIGEST_LENGTH>::reduceSize(md5Bits);
@@ -171,10 +138,10 @@ template<size_t T>
 bitset<56> Encrypter<T>::concat(bitset<28> inputA, bitset<28> inputB) {
     bitset<56> returnBits(0);
     for (int i = 0; i < 28; ++i) {
-        returnBits[i] = inputA[i];
+        returnBits[i] = inputB[i];
     }
     for (int i = 28; i < 56; ++i) {
-        returnBits[i] = inputB[i - 28];
+        returnBits[i] = inputA[i - 28];
     }
     return returnBits;
 }
