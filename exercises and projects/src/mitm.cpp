@@ -5,8 +5,13 @@
 
 using namespace std;
 
-/*balanced Feistel of 16 bit with the AES S-box*/
-void feistel(unsigned char *p, unsigned char *c, unsigned char *k, int r) {
+/*
+ * balanced Feistel of 16 bit with the AES S-box
+ */
+void feistel(unsigned char *p,
+             unsigned char *c,
+             unsigned char *k,
+             int r) {
 
     unsigned char s[] =
             {
