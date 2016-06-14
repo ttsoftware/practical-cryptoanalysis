@@ -74,10 +74,13 @@ void Encrypter<T>::feistel(unsigned char *plaintext,
 }
 
 template<size_t T>
-unsigned char *Encrypter<T>::mitm(unsigned char *plaintext,
-                                  unsigned char *cipher) {
+void Encrypter<T>::mitm(unsigned char plaintext[2][2],
+                        unsigned char cipher[2][2],
+                        unsigned char *returnKeys) {
 
-    unordered_map<bitset<16>, unsigned char *> cipherTable;
+    // map from cipher to keyset
+    unordered_map<bitset<16>, unsigned char *> cipherTable1;
+    unordered_map<bitset<16>, unsigned char *> cipherTable2;
 
     int keySpace = pow(2, 8);
 
@@ -85,48 +88,71 @@ unsigned char *Encrypter<T>::mitm(unsigned char *plaintext,
     for (int i = 0; i < keySpace; i++) {
         for (int j = 0; j < keySpace; j++) {
 
-            unsigned char currentCipher[2];
+            unsigned char currentCipher[2][2];
             unsigned char keys[2];
             keys[0] = i;
             keys[1] = j;
 
-            Encrypter<T>::feistel(plaintext, currentCipher, keys, 2);
+            Encrypter<T>::feistel(plaintext[0], currentCipher[0], keys, 2);
+            Encrypter<T>::feistel(plaintext[1], currentCipher[1], keys, 2);
 
-            bitset<8> c1(currentCipher[0]);
-            bitset<8> c2(currentCipher[1]);
+            bitset<8> c1(currentCipher[0][0]);
+            bitset<8> c2(currentCipher[0][1]);
 
-            bitset<16> index = Encrypter<T>::concat(c1, c2);
+            bitset<16> index1 = Encrypter<T>::concat(c1, c2);
+            cipherTable1[index1] = keys;
 
-            cipherTable[index] = keys;
+            bitset<8> c3(currentCipher[1][0]);
+            bitset<8> c4(currentCipher[1][1]);
+
+            bitset<16> index2 = Encrypter<T>::concat(c3, c4);
+            cipherTable2[index2] = keys;
         }
     }
+
+    bool breakOut = false;
 
     // find all key combinations going backwards
     for (int i = 0; i < keySpace; i++) {
         for (int j = 0; j < keySpace; j++) {
 
-            unsigned char currentPlaintext[2];
+            unsigned char currentPlaintext[2][2];
             unsigned char keys[2];
             keys[0] = i;
             keys[1] = j;
 
-            Encrypter<T>::feistel(cipher, currentPlaintext, keys, 2);
+            Encrypter<T>::feistel(cipher[0], currentPlaintext[0], keys, 2);
+            Encrypter<T>::feistel(cipher[1], currentPlaintext[1], keys, 2);
 
-            bitset<8> c1(currentPlaintext[0]);
-            bitset<8> c2(currentPlaintext[1]);
+            bitset<8> c1(currentPlaintext[0][0]);
+            bitset<8> c2(currentPlaintext[0][1]);
 
-            bitset<16> index = Encrypter<T>::concat(c1, c2);
+            bitset<16> index1 = Encrypter<T>::concat(c1, c2);
 
-            if (cipherTable.find(index) != cipherTable.end()) {
+            bitset<8> c3(currentPlaintext[1][0]);
+            bitset<8> c4(currentPlaintext[1][1]);
 
-                unsigned char* allKeys;
-                allKeys[0] = cipherTable[index][0];
-                allKeys[1] = cipherTable[index][1];
-                allKeys[2] = i;
-                allKeys[3] = j;
+            bitset<16> index2 = Encrypter<T>::concat(c3, c4);
 
-                return allKeys;
+            // does the current-plaintexts in exist in the ciphertables?
+            if (cipherTable1.find(index1) != cipherTable1.end()
+                && cipherTable2.find(index2) != cipherTable2.end()) {
+
+                // does the keys in the ciphertables match?
+                if (cipherTable1[index1][0] == cipherTable2[index2][0]
+                    && cipherTable1[index1][1] == cipherTable2[index2][1]) {
+
+                    returnKeys[0] = cipherTable1[index1][0];
+                    returnKeys[1] = cipherTable1[index1][1];
+                    returnKeys[2] = (unsigned char) i;
+                    returnKeys[3] = (unsigned char) j;
+
+                    breakOut = true;
+                    break;
+                }
             }
         }
+
+        if (breakOut) break;
     }
 }

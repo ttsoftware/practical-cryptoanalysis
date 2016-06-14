@@ -17,8 +17,9 @@ template<size_t T>
 class Encrypter {
 
 public:
-    static unsigned char *mitm(unsigned char *plaintext,
-                               unsigned char *cipher);
+    static void mitm(unsigned char plaintext[2][2],
+                     unsigned char cipher[2][2],
+                     unsigned char *returnKeys);
 
     static void feistel(unsigned char *plaintext,
                         unsigned char *cipher,
