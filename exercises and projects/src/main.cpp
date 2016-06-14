@@ -1,97 +1,118 @@
+#include <random>
 #include "lib/Encrypter.h"
 
 using namespace std;
 
-void threadRainbowTable(bitset<28> challenge,
+/**
+ * Computes a rainbow table from the given input and stores end and start point in the rainbow table given.
+ *
+ * @challenge: The selected challenge, u.
+ * @chainCount: The number of chains to generate.
+ * @maxRand: the maximum value for each input. Based on the size of the key.
+ * @chainLength: The length of each chain.
+ * @rainbowTable: The map to store the end point, start point pair.
+ */
+void computeRainbowTable(bitset<28> challenge,
                         int chainCount,
                         int maxRand,
+                        int chainLength,
                         unordered_map<bitset<28>, bitset<28>> *rainbowTable) {
 
-    int chainLength = pow(2, 10);
+    //random generator
+    default_random_engine generator;
+    uniform_int_distribution<int> distribution(0,maxRand);
+
+    //Count of duplicate keys
+    int duplicates = 0;
 
     for (int i = 0; i < chainCount; i++) {
-        int r = rand() % maxRand;
+        //Get new random
+        int r = distribution(generator);
 
+        //Convert random to input bitset and compute chian
         bitset<28> input((unsigned long long int) r);
+        bitset<28> result = Encrypter<28>::chain(input, challenge, 1, chainLength);
 
-        (*rainbowTable)[ Encrypter<28>::chain(input, challenge, 1, chainLength, false) ] = input;
+        //Check that the resulting output does not exist in the chain
+        auto it = (*rainbowTable).find(result);
+
+        //Already in the set - compute new rand()
+        if(it != (*rainbowTable).end()){
+            i--;
+            duplicates++;
+            cout << "Key already in the set: " << duplicates << " in chain " <<  i << endl;
+            //Continue - redo the chain with a new random value
+            continue;
+        }
+
+        //Store result in the rainbow table
+        (*rainbowTable)[result] = input;
     }
 }
-
+/**
+ * Overall function for setting default values, building the table and storing to file.
+ *
+ * @challenge: Selected challenge.
+ * @filename: Full path to store table to.
+ */
 void buildRainbowTable(bitset<28> challenge, string filename) {
 
+    //Init table constrains
     int maxRand = pow(2, 28);
-    int maxChains = pow(2, 10);
+    int maxChains = pow(2, 18);
+    int chainLength = pow(2,10);
 
+    //Init map
     unordered_map<bitset<28>, bitset<28>> rainbowTable;
 
-    int t_chains = maxChains / 4;
+    //Compute map
+    computeRainbowTable(challenge, maxChains, maxRand, chainLength, &rainbowTable);
 
-//    unordered_map<bitset<28>, bitset<28>> t1_rainbowTable;
-//    unordered_map<bitset<28>, bitset<28>> t2_rainbowTable;
-//    unordered_map<bitset<28>, bitset<28>> t3_rainbowTable;
-//    unordered_map<bitset<28>, bitset<28>> t4_rainbowTable;
-
-    thread t1 = thread(threadRainbowTable, challenge, maxChains, maxRand, &rainbowTable);
-//    thread t2 = thread(threadRainbowTable, challenge, t_chains, maxRand, &t2_rainbowTable);
-//    thread t3 = thread(threadRainbowTable, challenge, t_chains, maxRand, &t3_rainbowTable);
-//    thread t4 = thread(threadRainbowTable, challenge, t_chains, maxRand, &t4_rainbowTable);
-
-    t1.join();
-//    t2.join();
-//    t3.join();
-//    t4.join();
-
-//    rainbowTable.insert(t1_rainbowTable.begin(), t1_rainbowTable.end());
-//    rainbowTable.insert(t2_rainbowTable.begin(), t2_rainbowTable.end());
-//    rainbowTable.insert(t3_rainbowTable.begin(), t3_rainbowTable.end());
-//    rainbowTable.insert(t4_rainbowTable.begin(), t4_rainbowTable.end());
-
+    //Write to file
     Encrypter<28>::writeToFile(&rainbowTable, filename);
+}
+
+/**
+ * Tests the computed rainbow table and outputs the number of hits pr. 100 tries.
+ *
+ * @filename: The path to the stored rainbow table.
+ * @challenge: The challenge that the rainbow table is based on.
+ */
+void testTable(string filename, bitset<28> challenge){
+    int count = 0;
+    int max = 100;
+
+    default_random_engine generator;
+    uniform_int_distribution<int> distribution(0,pow(2, 28));
+    int maxRand = pow(2,28);
+
+    for(int i = 0; i < max; i++){
+//        int r = distribution(generator);
+        int r = rand() % maxRand;
+
+        bitset<28> key((unsigned long long int) r);
+
+        unordered_map<bitset<28>, bitset<28>> map = Encrypter<28>::loadFromFile(filename);
+        count = Encrypter<28>::breakKey(&map, challenge, key)
+                ? count + 1
+                : count;
+
+        cout << i << endl;
+    }
+
+    cout << "Total matches on "<< max <<" runs: " << count << endl;
 }
 
 int main() {
 
+    //Hardcoded challenge.
     bitset<28> challenge("1010101010101010101010101010");
-//Key that generates the chain
-//    bitset<28>       key("0110111110010111010010110010");
 
-    //key that should be in the chain generated above
-    bitset<28>       key("0101000011111011001101110011");
-
-    bitset<28>       test("1110101110110101111011110111");
-
-
-    string filename = "/projects/rainbow_table_challenge_multi.txt";
-
-    //TEST OF MD5
-
-//    bitset<56> concat = Encrypter<28>::concat(key, challenge);
-//
-//    cout << "Concat: " << endl;
-//    cout << key << challenge << endl;
-//    cout << concat << endl;
-//
-//    cout << Encrypter<56>::reduceSize(concat) << endl;
-
-
-//    cout << "Test encrypt" << endl;
-//    cout << Encrypter<28>::encrypt(test, challenge) << endl;
-//    cout << "1001010000100101101000010100" << endl;
-
-
-    unordered_map<bitset<28>, bitset<28>> map = Encrypter<28>::loadFromFile(filename);
-    Encrypter<28>::breakKey(&map, challenge, key);
+    string filename = "/projects/rainbow_table_challenge_multi2.txt";
 
 //    buildRainbowTable(challenge, filename);
 
-    // unordered_map<bitset<28>, bitset<28>> map = Encrypter<28>::loadFromFile("rainbow_table_challenge_multi.txt");
-
-
-
-    /*if (map1.size() != map2.size()) {
-        throw exception();
-    }*/
+    testTable(filename, challenge);
 
     return 0;
 }
