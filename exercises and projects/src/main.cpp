@@ -16,9 +16,6 @@ int main() {
     //We need a char input for the key.
 
     //This works
-    Encrypter<20>::encrypt((unsigned char *) &input, (unsigned char *) &temp, key1, true);
-    Encrypter<20>::encrypt((unsigned char *) &temp, (unsigned char *) &cipher, key2, true);
-
 //    printf("Plain: [%s]\n", &input);
 
 //    for(int i = 0; i < 8; i++){
@@ -31,12 +28,6 @@ int main() {
 
 //    cout << key << endl;
 //    cout << res << endl;
-
-    unordered_map<bitset<64>, vector<bitset<20>>> map;
-    Encrypter<20>::testKeysForward((unsigned char *) &input, &map);
-
-    vector<tuple<bitset<20>,bitset<20>>> pairs;
-    Encrypter<20>::testKeysBackward((unsigned char *) &cipher, &map, &pairs);
-
+    
     return 0;
 }
