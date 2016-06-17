@@ -10,20 +10,28 @@
 #include <unordered_map>
 #include <cmath>
 #include <cstring>
+#include <vector>
 
 using namespace std;
 
-template <size_t T> class Encrypter {
+template<size_t T>
+class Encrypter {
 
 public:
-    static void writeToFile(unordered_map<bitset<T>, bitset<T>> *coveredBits, string path);
+    static void mitm(unsigned char plaintext[2][2],
+                     unsigned char cipher[2][2],
+                     unsigned char *returnKeys);
 
-    static unordered_map<bitset<T>, bitset<T>> loadFromFile(string path);
+    static void feistel(unsigned char *plaintext,
+                        unsigned char *cipher,
+                        unsigned char *key,
+                        int rounds);
 
 private:
-    static bitset<20> reduceSize(bitset<T> input);
-
-    static bitset<T> increment(bitset<T> input);
+    /**
+     * Concats two 28 bit bitsets into a 56 bitset. InputA will be the lowest 28 bits.
+     */
+    static bitset<16> concat(bitset<8> inputA, bitset<8> inputB);
 };
 
 // We need to include at compile-time, otherwise <T> will not be available at link-time
