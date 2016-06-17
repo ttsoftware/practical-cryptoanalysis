@@ -6,8 +6,7 @@
 #include <bitset>
 #include <thread>
 #include <mutex>
-#include <openssl/md5.h>
-#include <openssl/DES.h>
+#include <openssl/AES.h>
 #include <unordered_map>
 #include <cmath>
 #include <cstring>
@@ -19,6 +18,11 @@ template<size_t T> class Encrypter {
 
 public:
 
+    static string decrypt(unsigned char cipher[], int length, unsigned char key[]);
+
+    static int getTime();
+
+    static void getKey(int time, unsigned char *output);
 
     static void testKeysForward(unsigned char *plaintext, unordered_map<bitset<64>, vector<bitset<20>>> *map);
 
