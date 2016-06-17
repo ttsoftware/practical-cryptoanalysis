@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <cmath>
 #include <cstring>
+#include <vector>
 
 using namespace std;
 
