@@ -27,6 +27,11 @@ public:
                         unsigned char *key,
                         int rounds);
 
+    static void inverseFeistel(unsigned char *plaintext,
+                        unsigned char *cipher,
+                        unsigned char *key,
+                        int rounds);
+
 private:
     /**
      * Concats two 28 bit bitsets into a 56 bitset. InputA will be the lowest 28 bits.
