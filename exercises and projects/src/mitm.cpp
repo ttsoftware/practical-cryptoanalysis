@@ -38,8 +38,10 @@ int main() {
     unsigned char plaintextTest[3][2];
     plaintextTest[0][0] = 0x01;
     plaintextTest[0][1] = 0x02;
+
     plaintextTest[1][0] = 0x03;
     plaintextTest[1][1] = 0x04;
+
     plaintextTest[2][0] = 0x12;
     plaintextTest[2][1] = 0x34;
 
@@ -52,6 +54,8 @@ int main() {
     plaintext[0][1] = 0x00;
     plaintext[1][0] = 0x12;
     plaintext[1][1] = 0x34;
+
+    test(plaintext[0]);
 
     unsigned char cipher[2][2];
     cipher[0][0] = 0x47;

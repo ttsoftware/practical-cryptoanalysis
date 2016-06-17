@@ -67,6 +67,10 @@ void Encrypter<T>::feistel(unsigned char *plaintext,
         z = x[0];
         x[0] = x[1];
         x[1] = z;
+
+        if(rounds > 3){
+            cout << x[0] << x[1] << endl;
+        }
     }
 
     cipher[0] = x[0];
@@ -127,6 +131,8 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
         }
     }
 
+    cout << cipherTable.size() << endl;
+
     // find all key combinations going backwards
     for (int i = 0; i < keySpace; i++) {
         for (int j = 0; j < keySpace; j++) {
@@ -146,10 +152,19 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
             // does the current-plaintexts in exist in the ciphertables?
             if (cipherTable.find(index) != cipherTable.end()) {
 
+
                 firstKeys[x][0] = cipherTable[index][0];
                 firstKeys[x][1] = cipherTable[index][1];
                 firstKeys[x][2] = (unsigned char) i;
                 firstKeys[x][3] = (unsigned char) j;
+
+                if(x == 46385){
+                    cout << index << endl;
+                    unsigned char test[2];
+                    Encrypter<T>::feistel(plaintext[0], test, firstKeys[i], 4);
+                    cout << cipher[0][0] << cipher[0][1] << endl;
+                    cout << test[0] << test[1] << endl;
+                }
                 x++;
             }
         }
@@ -178,7 +193,7 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
         bitset<16> cc = Encrypter<T>::concat(p1, p2);
 
         if (cipherBits1 == cc) {
-
+            cout << "i: " << i << endl;
             cout << "cc: " << cc << endl;
 
             Encrypter<T>::feistel(plaintext[0], cipherResult[1], firstKeys[i], 4);
@@ -188,6 +203,8 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
 
             bitset<16> ccc = Encrypter<T>::concat(p3, p4);
 
+            cout << "troelstest" << cipherBits0 << endl;
+            cout << "troelstest" << ccc << endl;
             if (cipherBits0 == ccc) {
 
                 cout << "ccc: " << ccc << endl;
