@@ -4,13 +4,12 @@
 #include <iostream>
 #include <fstream>
 #include <bitset>
-#include <thread>
-#include <mutex>
 #include <openssl/AES.h>
 #include <unordered_map>
 #include <cmath>
 #include <cstring>
 #include <vector>
+#include <time.h>
 
 using namespace std;
 
@@ -23,6 +22,8 @@ public:
     static int getTime();
 
     static void getKey(int time, unsigned char *output);
+
+    static unsigned char * readFile(string path);
 };
 
 // We need to include at compile-time, otherwise <T> will not be available at link-time
