@@ -19,9 +19,15 @@ template<size_t T> class Encrypter {
 
 public:
 
-
+    /**
+     *
+     */
     static void testKeysForward(unsigned char *plaintext, unordered_map<bitset<64>, vector<bitset<20>>> *map);
 
+
+    /**
+     *
+     */
     static void testKeysBackward(unsigned char *cipher, unordered_map<bitset<64>, vector<bitset<20>>> *map, vector<tuple<bitset<20>,bitset<20>>> *pairs);
 
     static void encrypt(unsigned char *input, unsigned char *output, bitset<20> key, bool encrypt);
@@ -39,7 +45,6 @@ public:
      * Reduces the size of the given bitset to 28.
      */
     static bitset<28> reduceSize(bitset<T> input);
-
 
     /**
      * Concats two 28 bit bitsets into a 56 bitset. InputA will be the lowest 28 bits.

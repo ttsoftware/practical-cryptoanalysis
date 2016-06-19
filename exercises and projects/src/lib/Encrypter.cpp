@@ -3,33 +3,40 @@
 template<size_t T>
 void Encrypter<T>::testKeysForward(unsigned char *plaintext, unordered_map<bitset<64>, vector< bitset<20> > > *map){
 
+    //Init starting variables
     int maxKey = pow(2,20);
     bitset<20> key(0);
     bitset<64> result(0);
     unsigned char output[8];
 
     for(int i = 0; i < maxKey; i++){
-
+        //Encrypt the plaintext with the given key and write it to output
         Encrypter<8>::encrypt(plaintext, (unsigned char *) output, key, true);
+
+        //Convert the resulting bytes to a bitset
         result = Encrypter<8>::toBitset((unsigned char *) output);
 
+        //Look up in the map
         auto it = (*map).find(result);
 
+        //If none found, add a new vector to the map
         if(it == (*map).end() ){
             vector<bitset<20>> temp;
             (*map)[result] = temp;
-
         }
+
+        //Add the key to the vector for the given result
         (*map)[result].push_back(key);
 
+        //Increment key
         key = Encrypter<20>::increment(key);
-
-//        cout << i << ": "<<(*map).size() << endl;
     }
 }
 
 template<size_t T>
 void Encrypter<T>::testKeysBackward(unsigned char *cipher, unordered_map<bitset<64>, vector<bitset<20>>> *map, vector<tuple<bitset<20>,bitset<20>>> *pairs){
+
+    //Init starting variables
     int maxKey = pow(2,20);
     bitset<20> key(0);
     bitset<64> result(0);
@@ -37,21 +44,24 @@ void Encrypter<T>::testKeysBackward(unsigned char *cipher, unordered_map<bitset<
 
     for(int i = 0; i < maxKey; i++){
 
+        //Decrypt backwards using the given key and the cipher
         Encrypter<8>::encrypt(cipher, (unsigned char *) output, key, false);
+
+        //Convert the result to bitset
         result = Encrypter<8>::toBitset((unsigned char *) output);
 
+        //Lookup in the map
         auto it = (*map).find(result);
 
         if(it != (*map).end() ){
+            //Scan through vector. All matches are candidate keys.
             for(int j = 0; j< it->second.size(); j++){
                 (*pairs).push_back(make_pair(it->second[j], key));
-                cout << "MATCH BITCHES: "<< it->second[j] << " : " << key << endl;
+                cout << "MATCH: " << it->second[j] << " : " << key << endl;
             }
-
         }
+        //Increment the key
         key = Encrypter<20>::increment(key);
-
-//        cout << i << ": "<<(*pairs).size() << endl;
     }
 }
 
@@ -71,9 +81,6 @@ void Encrypter<T>::encrypt(unsigned char* input, unsigned char* output, bitset<2
     //Converted key will be written to the pointer given
     Encrypter<8>::convertKey(key, convertedKey);
 
-    //This was to check that the key is converted correctly - now it is
-//    Encrypter<7>::toBitset((unsigned char *) &convertedKey);
-
     //do shit
     DES_set_key_unchecked((C_Block *) &convertedKey, &keySchedule);
 
@@ -91,16 +98,11 @@ bitset<T * 8> Encrypter<T>::toBitset(unsigned char * input){
         //Create new bitset containing the char as bits
         bitset<T * 8> temp(input[i]);
 
-        //Bitshift the char corresponding to the possition in the digest
+        //Bitshift the char corresponding to the position in the digest
         temp <<= (T - i - 1) * 8;
 
-//        cout << "Iteration " << i << endl;
-//        cout << temp << endl;
-
-        //XOR onto our result
+        //Xor the char onto result
         result ^= temp;
-
-//        cout << result << endl;
     }
 
     return result;
@@ -109,20 +111,22 @@ bitset<T * 8> Encrypter<T>::toBitset(unsigned char * input){
 template<size_t T>
 void Encrypter<T>::convertKey(bitset<20> key, unsigned char * output){
 
+    //The overall index of the key processed
     int keyIndex = 0;
+
+    //Loop through each character of the output
     for(int ch = 0; ch < T; ch++) {
 
         //bitset for each character
         bitset<8> charbitset(0);
 
+        //Loop through each bit corresponding to the character in the output
         for (int i = 1; i < T; i++) {
-
-            //KeyIndex should always have the lowest bit unset because of parity
-//            int keyIndex = i - 1 + ch * T;
 
             //Terminate when length of key is found
             if (keyIndex > 19) break;
 
+            //Set the bit found
             charbitset[i] = key[keyIndex];
             keyIndex++;
         }
@@ -132,40 +136,6 @@ void Encrypter<T>::convertKey(bitset<20> key, unsigned char * output){
         output[7 - ch - 1] = static_cast<unsigned char>( i );
     }
 }
-
-
-//template<size_t T>
-//bitset<28> Encrypter<T>::md5Redux(bitset<T> input) {
-//
-//    //Convert all bits to a char array in opposite order.
-//    char inputChars[T];
-//    for (int i = 0; i < T; i++) {
-//        inputChars[T-i-1] = input[i];
-//    }
-//
-//    //Assign result array and run MD5 function
-//    unsigned char digest[MD5_DIGEST_LENGTH];
-//    MD5((unsigned char *) &inputChars, T, (unsigned char *) &digest);
-//
-//    //Assign bitset for result
-//    bitset<8 * MD5_DIGEST_LENGTH> md5Bits;
-//
-//    //Apply every char to the result bitset
-//    for (int i = 0; i < MD5_DIGEST_LENGTH; ++i) {
-//
-//        //Create new bitset containing the char as bits
-//        bitset<128> temp(digest[i]);
-//
-//        //Bitshift the char corresponding to the possition in the digest
-//        temp <<= (MD5_DIGEST_LENGTH - i - 1)*8;
-//
-//        //XOR onto our result
-//        md5Bits ^= temp;
-//    }
-//
-//    //Return the reduced bitset
-//    return Encrypter<8 * MD5_DIGEST_LENGTH>::reduceSize(md5Bits);
-//}
 
 template<size_t T>
 bitset<T> Encrypter<T>::increment(bitset<T> input) {
