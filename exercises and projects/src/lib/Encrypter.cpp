@@ -67,10 +67,6 @@ void Encrypter<T>::feistel(unsigned char *plaintext,
         z = x[0];
         x[0] = x[1];
         x[1] = z;
-
-        if(rounds > 3){
-            cout << x[0] << x[1] << endl;
-        }
     }
 
     cipher[0] = x[0];
@@ -152,32 +148,14 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
             // does the current-plaintexts in exist in the ciphertables?
             if (cipherTable.find(index) != cipherTable.end()) {
 
-
                 firstKeys[x][0] = cipherTable[index][0];
                 firstKeys[x][1] = cipherTable[index][1];
                 firstKeys[x][2] = (unsigned char) i;
                 firstKeys[x][3] = (unsigned char) j;
-
-                if(x == 46385){
-                    cout << index << endl;
-                    unsigned char test[2];
-                    Encrypter<T>::feistel(plaintext[0], test, firstKeys[i], 4);
-                    cout << cipher[0][0] << cipher[0][1] << endl;
-                    cout << test[0] << test[1] << endl;
-                }
                 x++;
             }
         }
     }
-
-    bitset<8> c1(cipher[0][0]);
-    bitset<8> c2(cipher[0][1]);
-
-    bitset<8> c3(cipher[1][0]);
-    bitset<8> c4(cipher[1][1]);
-
-    bitset<16> cipherBits0 = Encrypter<T>::concat(c1, c2);
-    bitset<16> cipherBits1 = Encrypter<T>::concat(c3, c4);
 
     // find the cipher permutations of keys in returnKeys using plaintext[1]
     // check if a cipher exists which match a cipher in resultTable (going backwards)
@@ -187,27 +165,17 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
 
         Encrypter<T>::feistel(plaintext[1], cipherResult[0], firstKeys[i], 4);
 
-        bitset<8> p1(cipherResult[0][0]);
-        bitset<8> p2(cipherResult[0][1]);
+        if (cipherResult[0][0] == cipher[1][0]
+            && cipherResult[0][1] == cipher[1][1]) {
 
-        bitset<16> cc = Encrypter<T>::concat(p1, p2);
-
-        if (cipherBits1 == cc) {
-            cout << "i: " << i << endl;
-            cout << "cc: " << cc << endl;
+            cout << "success" << endl;
 
             Encrypter<T>::feistel(plaintext[0], cipherResult[1], firstKeys[i], 4);
 
-            bitset<8> p3(cipherResult[1][0]);
-            bitset<8> p4(cipherResult[1][1]);
+            if (cipherResult[1][0] == cipher[0][0]
+                && cipherResult[1][1] == cipher[0][1]) {
 
-            bitset<16> ccc = Encrypter<T>::concat(p3, p4);
-
-            cout << "troelstest" << cipherBits0 << endl;
-            cout << "troelstest" << ccc << endl;
-            if (cipherBits0 == ccc) {
-
-                cout << "ccc: " << ccc << endl;
+                cout << "success" << endl;
 
                 returnKeys = firstKeys[i];
             }

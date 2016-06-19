@@ -28,7 +28,8 @@ void test(unsigned char plaintext[2]) {
     cout << b1 << b2 << endl;
     cout << p1 << p2 << " = " << p3 << p4 << endl;
 
-    if (p1 != p3 || p2 != p4) {
+    if (plaintextResult[0] != plaintext[0]
+        || plaintextResult[1] != plaintext[1]) {
         throw new exception();
     }
 }
