@@ -66,8 +66,6 @@ int main() {
 
     unsigned char keys[4];
 
-    return 0;
-
     Encrypter<0>::mitm(
             plaintext,
             cipher,

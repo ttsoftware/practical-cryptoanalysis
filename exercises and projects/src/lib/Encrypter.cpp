@@ -173,11 +173,7 @@ int backward(int keySpaceSize,
             // does the current-plaintexts in exist in the ciphertables?
             if ((*cipherTable).find(index) != (*cipherTable).end()) {
 
-                Encrypter<0>::feistel(currentPlaintext, currentPlaintext, tempKeys, 2);
-
-
-
-                for(int k = 0; k < (*cipherTable)[index].size(); k++){
+                for (int k = 0; k < (*cipherTable)[index].size(); k++) {
 
                     keys[x][0] = (*cipherTable)[index][k][0];
                     keys[x][1] = (*cipherTable)[index][k][1];
@@ -232,35 +228,19 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
             unsigned char plaintextResult[2];
             Encrypter<T>::inverseFeistel(currentCipher, plaintextResult, cipherKeys, 2);
 
-            cout << i << ":" << keyValue.first << endl;
-            bitset<8> t1(currentCipher[0]);
-            bitset<8> t2(currentCipher[1]);
-            cout << i << ":" << t1 << t2 << endl;
-
-            cout << (uint) plaintextResult[0] << ":" << (uint) plaintextResult[1] << endl;
-            cout << (uint) plaintext[0][0] << ":" << (uint) plaintext[0][1] << endl;
-
             if (plaintextResult[0] != plaintext[0][0]
                 || plaintextResult[1] != plaintext[0][1]) {
-
-                bitset<8> k1(cipherKeys[0]);
-                bitset<8> k2(cipherKeys[1]);
-
-                cout << "Key1: " << k1 << endl;
-                cout << "Key2: " << k2 << endl;
-
-                // cout << i << ":" << keyValue.first << endl;
 
                 throw new exception();
             }
         }
-
     }
 
     cout << cipherTable.size() << endl;
 
     int x = backward(keySpace, cipher, &cipherTable, keys);
     int successCount = 0;
+
     // find the cipher permutations of keys in returnKeys using plaintext[1]
     // check if a cipher exists which match a cipher in resultTable (going backwards)
     for (int i = 0; i < x; i++) {
@@ -268,25 +248,18 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
         unsigned char cipherResult[2][2];
 
         Encrypter<T>::feistel(plaintext[0], cipherResult[0], keys[i], 4);
+        Encrypter<T>::feistel(plaintext[1], cipherResult[1], keys[i], 4);
 
-        if (cipherResult[0][0] == cipher[0][0]
-            && cipherResult[0][1] == cipher[0][1]) {
+        if (cipherResult[1][0] == cipher[1][0]
+            && cipherResult[1][1] == cipher[1][1]) {
 
             successCount++;
 
-            cout << "success" << endl;
-
-            for(int k = 0; k < 4; k++){
-                bitset<8> kay(keys[i][k]);
-                cout << kay << endl;
-            }
-
-            Encrypter<T>::feistel(plaintext[1], cipherResult[1], keys[i], 4);
-
-            if (cipherResult[1][0] == cipher[1][0]
-                && cipherResult[1][1] == cipher[1][1]) {
+            if (cipherResult[0][0] == cipher[0][0]
+                && cipherResult[0][1] == cipher[0][1]) {
 
                 cout << "success" << endl;
+                cout << keys[i][0] << " " << keys[i][1] << " " << keys[i][2] << " " << keys[i][3] << " " << endl;
 
                 returnKeys = keys[i];
             }
