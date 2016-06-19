@@ -245,7 +245,6 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
     cout << cipherTable.size() << endl;
 
     int x = backward(keySpace, cipher, &cipherTable, keys);
-    int successCount = 0;
 
     // find the cipher permutations of keys in returnKeys using plaintext[1]
     // check if a cipher exists which match a cipher in resultTable (going backwards)
@@ -259,18 +258,18 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
         if (cipherResult[1][0] == cipher[1][0]
             && cipherResult[1][1] == cipher[1][1]) {
 
-            successCount++;
-
             if (cipherResult[0][0] == cipher[0][0]
                 && cipherResult[0][1] == cipher[0][1]) {
 
-                cout << "success" << endl;
-                cout << keys[i][0] << " " << keys[i][1] << " " << keys[i][2] << " " << keys[i][3] << " " << endl;
+                bitset<8> k1(keys[i][0]);
+                bitset<8> k2(keys[i][1]);
+                bitset<8> k3(keys[i][2]);
+                bitset<8> k4(keys[i][3]);
+
+                cout << k1 << k2 << k3 << k4 << endl;
 
                 returnKeys = keys[i];
             }
         }
     }
-
-    cout << "X: " << x << ", success#: " << successCount << endl;
 }
