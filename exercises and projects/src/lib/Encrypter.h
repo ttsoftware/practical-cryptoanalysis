@@ -36,6 +36,8 @@ public:
      * Concats two 28 bit bitsets into a 56 bitset. InputA will be the lowest 28 bits.
      */
     static bitset<16> concat(bitset<8> inputA, bitset<8> inputB);
+
+    static tuple<bitset<8>, bitset<8>> split(bitset<16> input);
 };
 
 // We need to include at compile-time, otherwise <T> will not be available at link-time

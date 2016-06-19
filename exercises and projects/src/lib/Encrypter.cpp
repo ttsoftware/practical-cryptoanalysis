@@ -48,6 +48,24 @@ bitset<16> Encrypter<T>::concat(bitset<8> inputA, bitset<8> inputB) {
     return returnBits;
 }
 
+template<size_t T>
+tuple <bitset<8>, bitset<8>> Encrypter<T>::split(bitset<16> input) {
+
+    bitset<8> b1(0);
+    bitset<8> b2(0);
+
+    for (int i = 0; i < input.size(); i++) {
+        if (i <= 8) {
+            b1[i] = input[i];
+        }
+        if (i > 8) {
+            b1[i] = input[i];
+        }
+    }
+    tuple <bitset<8>, bitset<8>> temp(b1, b2);
+    return temp;
+}
+
 /*
  * balanced Feistel of 16 bit with the AES S-box
  */
@@ -120,9 +138,9 @@ void forward(int keySpaceSize,
 }
 
 int backward(int keySpaceSize,
-              unsigned char cipher[2][2],
-              unordered_map<bitset<16>, unsigned char *> *cipherTable,
-              unsigned char keys[][4]) {
+             unsigned char cipher[2][2],
+             unordered_map<bitset<16>, unsigned char *> *cipherTable,
+             unsigned char keys[][4]) {
     int x = 0;
 
     // find all key combinations going backwards
@@ -156,6 +174,15 @@ int backward(int keySpaceSize,
     return x;
 }
 
+unsigned char *convert(bitset<8> b1, bitset<8> b2) {
+
+    unsigned char cipher[2];
+    cipher[0] = static_cast<unsigned char>(b1.to_ulong());
+    cipher[1] = static_cast<unsigned char>(b2.to_ulong());
+
+    return cipher;
+}
+
 template<size_t T>
 void Encrypter<T>::mitm(unsigned char plaintext[2][2],
                         unsigned char cipher[2][2],
@@ -169,6 +196,33 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
     unsigned char keys[keySpace * keySpace][4];
 
     forward(keySpace, plaintext, &cipherTable);
+
+    for (auto keyValue : cipherTable) {
+
+        tuple <bitset<8>, bitset<8>> temp = Encrypter<T>::split(keyValue.first);
+
+        bitset<8> b1 = get<0>(temp);
+        bitset<8> b2 = get<1>(temp);
+
+        unsigned char *tempCipher = convert(b1, b2);
+        unsigned char currentCipher[2];
+        currentCipher[0] = tempCipher[0];
+        currentCipher[1] = tempCipher[1];
+
+        tempCipher = keyValue.second;
+        unsigned char cipherKeys[2];
+        cipherKeys[0] = tempCipher[0];
+        cipherKeys[1] = tempCipher[1];
+
+        unsigned char plaintextResult[2];
+
+        Encrypter<T>::inverseFeistel(currentCipher, plaintextResult, cipherKeys, 2);
+
+        if (plaintextResult[0] != plaintext[0][0]
+            || plaintextResult[1] != plaintext[0][1]) {
+            throw new exception();
+        }
+    }
 
     cout << cipherTable.size() << endl;
 
