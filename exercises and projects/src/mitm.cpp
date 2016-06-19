@@ -2,6 +2,9 @@
 
 using namespace std;
 
+/**
+ * Test if given plaintext can be encrypted/decrypted correctly using a hard-coded key
+ */
 void test(unsigned char plaintext[2]) {
 
     unsigned char keys[4];
@@ -52,7 +55,7 @@ int main() {
     cipher[1][0] = 0x3c;
     cipher[1][1] = 0xf6;
 
-    unsigned char keys[4];
+    unsigned char keys[2][4];
 
     Encrypter<0>::mitm(
             plaintext,
@@ -60,13 +63,15 @@ int main() {
             keys
     );
 
-    unsigned char cipherResult[2];
+    // print the found keysets
+    for (int i = 0; i < 2; i++) {
 
-    Encrypter<0>::feistel(plaintext[0], cipherResult, keys, 4);
+        bitset<8> k1(keys[i][0]);
+        bitset<8> k2(keys[i][1]);
+        bitset<8> k3(keys[i][2]);
+        bitset<8> k4(keys[i][3]);
 
-    if (cipherResult[0] == cipher[0][0]
-        && cipherResult[1] == cipher[0][1]) {
-        cout << "success" << endl;
+        cout << k1 << k2 << k3 << k4 << endl;
     }
 
     return 0;

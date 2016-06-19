@@ -35,6 +35,9 @@ unsigned char secret[] = {
         0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
 };
 
+/**
+ * Concat two 8-bit bitsets into a single 16-bit bitset
+ */
 template<size_t T>
 bitset<16> Encrypter<T>::concat(bitset<8> inputA, bitset<8> inputB) {
     bitset<16> returnBits(0);
@@ -48,6 +51,9 @@ bitset<16> Encrypter<T>::concat(bitset<8> inputA, bitset<8> inputB) {
     return returnBits;
 }
 
+/**
+ * Split a 16-bit bitset into two 8-bit bitsets
+ */
 template<size_t T>
 tuple<bitset<8>, bitset<8>> Encrypter<T>::split(bitset<16> input) {
 
@@ -92,6 +98,9 @@ void Encrypter<T>::feistel(unsigned char *plaintext,
     cipher[1] = x[1];
 }
 
+/**
+ * Inverse feistel function - equivalent to going backwards up the chain
+ */
 template<size_t T>
 void Encrypter<T>::inverseFeistel(unsigned char *plaintext,
                                   unsigned char *cipher,
@@ -114,6 +123,10 @@ void Encrypter<T>::inverseFeistel(unsigned char *plaintext,
     cipher[1] = x[0];
 }
 
+/**
+ * forward-encrypt 2 rounds of feistel with given keySpaceSize and plaintext.
+ * We store the resulting cipher->keyset map in cipherTable.
+ */
 void forward(int keySpaceSize,
              unsigned char plaintext[2][2],
              unordered_map<bitset<16>, vector<vector<unsigned char>>> *cipherTable) {
@@ -127,6 +140,7 @@ void forward(int keySpaceSize,
             keys[0] = static_cast<unsigned char>(i);
             keys[1] = static_cast<unsigned char>(j);
 
+            // encrypt plaintext0 with 2 rounds
             Encrypter<0>::feistel(plaintext[0], currentCipher, keys, 2);
 
             bitset<8> c1(currentCipher[0]);
@@ -134,12 +148,14 @@ void forward(int keySpaceSize,
 
             bitset<16> index = Encrypter<0>::concat(c1, c2);
 
+            // store the cipher->keyset pair in the cipherTable
             vector<unsigned char> tempKeys = {keys[0], keys[1]};
             if ((*cipherTable).find(index) == (*cipherTable).end()) {
                 vector<vector<unsigned char>> indexKeys = {tempKeys};
                 (*cipherTable)[index] = indexKeys;
             }
             else {
+                // handle collisions between ciphers
                 vector<vector<unsigned char>> indexKeys = (*cipherTable)[index];
                 indexKeys.push_back(tempKeys);
                 (*cipherTable)[index] = indexKeys;
@@ -148,6 +164,10 @@ void forward(int keySpaceSize,
     }
 }
 
+/**
+ * backward-decrypt 2 rounds of inverseFeistel with given keySpaceSize and cipher.
+ * We store the resulting array of keysets in keys.
+ */
 int backward(int keySpaceSize,
              unsigned char cipher[2][2],
              unordered_map<bitset<16>, vector<vector<unsigned char>>> *cipherTable,
@@ -163,6 +183,7 @@ int backward(int keySpaceSize,
             tempKeys[0] = i;
             tempKeys[1] = j;
 
+            // decrypt cipher0 with 2 rounds
             Encrypter<0>::inverseFeistel(cipher[0], currentPlaintext, tempKeys, 2);
 
             bitset<8> c1(currentPlaintext[0]);
@@ -170,9 +191,10 @@ int backward(int keySpaceSize,
 
             bitset<16> index = Encrypter<0>::concat(c1, c2);
 
-            // does the current-plaintexts in exist in the ciphertables?
+            // do the currentPlaintext's exist in ciphertable?
             if ((*cipherTable).find(index) != (*cipherTable).end()) {
 
+                // store all keysets in cipherTable entry
                 for (int k = 0; k < (*cipherTable)[index].size(); k++) {
 
                     keys[x][0] = (*cipherTable)[index][k][0];
@@ -185,14 +207,13 @@ int backward(int keySpaceSize,
         }
     }
 
+    // return number of candidate keysets
     return x;
 }
 
-void convert(bitset<8> b1, bitset<8> b2, unsigned char returnChars[2]) {
-    returnChars[0] = static_cast<unsigned char>(b1.to_ulong());
-    returnChars[1] = static_cast<unsigned char>(b2.to_ulong());
-}
-
+/**
+ * Test if the ciphers stored in cipherTable can actually be decrypted into plaintext using 2 inverseFeistel rounds.
+ */
 void testForward(unsigned char plaintext[2][2],
                  unordered_map<bitset<16>, vector<vector<unsigned char>>> *cipherTable) {
 
@@ -204,7 +225,8 @@ void testForward(unsigned char plaintext[2][2],
         bitset<8> b2 = get<1>(temp);
 
         unsigned char currentCipher[2];
-        convert(b1, b2, currentCipher);
+        currentCipher[0] = static_cast<unsigned char>(b1.to_ulong());
+        currentCipher[1] = static_cast<unsigned char>(b2.to_ulong());
 
         vector<vector<unsigned char>> tempKeys = keyValue.second;
 
@@ -219,32 +241,38 @@ void testForward(unsigned char plaintext[2][2],
 
             if (plaintextResult[0] != plaintext[0][0]
                 || plaintextResult[1] != plaintext[0][1]) {
-
+                // we should never reach this point
                 throw new exception();
             }
         }
     }
 }
 
+/**
+ * meet-in-the-middle attack on 4 rounds of feistel
+ * stores the resulting keysets in returnKeys
+ */
 template<size_t T>
 void Encrypter<T>::mitm(unsigned char plaintext[2][2],
                         unsigned char cipher[2][2],
-                        unsigned char *returnKeys) {
+                        unsigned char returnKeys[2][4]) {
 
     int keySpace = pow(2, 8);
 
     // map from cipher to keyset
     unordered_map<bitset<16>, vector<vector<unsigned char>>> cipherTable;
-
     unsigned char keys[keySpace * keySpace][4];
 
     forward(keySpace, plaintext, &cipherTable);
 
     testForward(plaintext, &cipherTable);
 
-    cout << cipherTable.size() << endl;
-
+    // number of candidate keys to iterate over after going backward to confirm a match
     int x = backward(keySpace, cipher, &cipherTable, keys);
+
+    // number of found keysets - to get down to 1 keyset we would need 1 more cipher/plaintext pair
+    // with two cipher/plaintext pairs we find 2 candidate keysets
+    int keySets = 0;
 
     // find the cipher permutations of keys in returnKeys using plaintext[1]
     // check if a cipher exists which match a cipher in resultTable (going backwards)
@@ -255,20 +283,19 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
         Encrypter<T>::feistel(plaintext[0], cipherResult[0], keys[i], 4);
         Encrypter<T>::feistel(plaintext[1], cipherResult[1], keys[i], 4);
 
+        // can this keypair encrypt plaintext0 to cipher0?
         if (cipherResult[1][0] == cipher[1][0]
             && cipherResult[1][1] == cipher[1][1]) {
 
+            // can this keypair also encrypt plaintext1 to cipher1?
             if (cipherResult[0][0] == cipher[0][0]
                 && cipherResult[0][1] == cipher[0][1]) {
 
-                bitset<8> k1(keys[i][0]);
-                bitset<8> k2(keys[i][1]);
-                bitset<8> k3(keys[i][2]);
-                bitset<8> k4(keys[i][3]);
-
-                cout << k1 << k2 << k3 << k4 << endl;
-
-                returnKeys = keys[i];
+                returnKeys[keySets][0] = keys[i][0];
+                returnKeys[keySets][1] = keys[i][1];
+                returnKeys[keySets][2] = keys[i][2];
+                returnKeys[keySets][3] = keys[i][3];
+                keySets++;
             }
         }
     }

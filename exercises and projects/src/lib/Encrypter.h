@@ -20,7 +20,7 @@ class Encrypter {
 public:
     static void mitm(unsigned char plaintext[2][2],
                      unsigned char cipher[2][2],
-                     unsigned char *returnKeys);
+                     unsigned char returnKeys[2][4]);
 
     static void feistel(unsigned char *plaintext,
                         unsigned char *cipher,
