@@ -13,8 +13,6 @@ int main() {
     unsigned char temp[8];
     unsigned char cipher[8];
 
-    //We need a char input for the key.
-
     //This works. Generates the cipher by applying two layers.
     Encrypter<20>::encrypt((unsigned char *) &input, (unsigned char *) &temp, key1, true);
     Encrypter<20>::encrypt((unsigned char *) &temp, (unsigned char *) &cipher, key2, true);
