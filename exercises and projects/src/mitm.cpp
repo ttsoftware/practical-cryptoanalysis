@@ -25,8 +25,8 @@ void test(unsigned char plaintext[2]) {
     bitset<8> p3(plaintext[0]);
     bitset<8> p4(plaintext[1]);
 
-    cout << b1 << b2 << endl;
-    cout << p1 << p2 << " = " << p3 << p4 << endl;
+    // cout << b1 << b2 << endl;
+    // cout << p1 << p2 << " = " << p3 << p4 << endl;
 
     if (plaintextResult[0] != plaintext[0]
         || plaintextResult[1] != plaintext[1]) {

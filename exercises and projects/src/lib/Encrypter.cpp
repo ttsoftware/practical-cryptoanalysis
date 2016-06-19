@@ -55,13 +55,14 @@ tuple <bitset<8>, bitset<8>> Encrypter<T>::split(bitset<16> input) {
     bitset<8> b2(0);
 
     for (int i = 0; i < input.size(); i++) {
-        if (i <= 8) {
-            b1[i] = input[i];
-        }
         if (i > 8) {
-            b1[i] = input[i];
+            b1[i - 8] = input[i];
+        }
+        if (i <= 8) {
+            b2[i] = input[i];
         }
     }
+
     tuple <bitset<8>, bitset<8>> temp(b1, b2);
     return temp;
 }
@@ -174,13 +175,9 @@ int backward(int keySpaceSize,
     return x;
 }
 
-unsigned char *convert(bitset<8> b1, bitset<8> b2) {
-
-    unsigned char cipher[2];
-    cipher[0] = static_cast<unsigned char>(b1.to_ulong());
-    cipher[1] = static_cast<unsigned char>(b2.to_ulong());
-
-    return cipher;
+void convert(bitset<8> b1, bitset<8> b2, unsigned char returnChars[2]) {
+    returnChars[0] = static_cast<unsigned char>(b1.to_ulong());
+    returnChars[1] = static_cast<unsigned char>(b2.to_ulong());
 }
 
 template<size_t T>
@@ -204,16 +201,10 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
         bitset<8> b1 = get<0>(temp);
         bitset<8> b2 = get<1>(temp);
 
-        unsigned char *tempCipher = convert(b1, b2);
         unsigned char currentCipher[2];
-        currentCipher[0] = tempCipher[0];
-        currentCipher[1] = tempCipher[1];
+        convert(b1, b2, currentCipher);
 
-        tempCipher = keyValue.second;
-        unsigned char cipherKeys[2];
-        cipherKeys[0] = tempCipher[0];
-        cipherKeys[1] = tempCipher[1];
-
+        unsigned char *cipherKeys = keyValue.second;
         unsigned char plaintextResult[2];
 
         Encrypter<T>::inverseFeistel(currentCipher, plaintextResult, cipherKeys, 2);
