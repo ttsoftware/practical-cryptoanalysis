@@ -227,6 +227,7 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
 
             if (plaintextResult[0] != plaintext[0][0]
                 || plaintextResult[1] != plaintext[0][1]) {
+
                 throw new exception();
             }
         }

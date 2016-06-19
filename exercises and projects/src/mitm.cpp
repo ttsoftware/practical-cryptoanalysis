@@ -16,6 +16,7 @@ void test(unsigned char plaintext[2]) {
     Encrypter<0>::feistel(plaintext, cipherResult, keys, 4);
     Encrypter<0>::inverseFeistel(cipherResult, plaintextResult, keys, 4);
 
+    /*
     bitset<8> b1(cipherResult[0]);
     bitset<8> b2(cipherResult[1]);
 
@@ -25,8 +26,9 @@ void test(unsigned char plaintext[2]) {
     bitset<8> p3(plaintext[0]);
     bitset<8> p4(plaintext[1]);
 
-    // cout << b1 << b2 << endl;
-    // cout << p1 << p2 << " = " << p3 << p4 << endl;
+    cout << b1 << b2 << endl;
+    cout << p1 << p2 << " = " << p3 << p4 << endl;
+    */
 
     if (plaintextResult[0] != plaintext[0]
         || plaintextResult[1] != plaintext[1]) {
