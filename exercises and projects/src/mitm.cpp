@@ -13,14 +13,11 @@ void test(unsigned char plaintext[2]) {
     unsigned char plaintextResult[2];
     unsigned char cipherResult[2];
 
-    Encrypter<0>::feistel(plaintext, cipherResult, keys, 2);
-    Encrypter<0>::inverseFeistel(cipherResult, plaintextResult, keys, 2);
+    Encrypter<0>::feistel(plaintext, cipherResult, keys, 4);
+    Encrypter<0>::inverseFeistel(cipherResult, plaintextResult, keys, 4);
 
     bitset<8> b1(cipherResult[0]);
     bitset<8> b2(cipherResult[1]);
-
-//    bitset<8> c1(cipher[0]);
-//    bitset<8> c2(cipher[1]);
 
     bitset<8> p1(plaintextResult[0]);
     bitset<8> p2(plaintextResult[1]);
@@ -28,19 +25,13 @@ void test(unsigned char plaintext[2]) {
     bitset<8> p3(plaintext[0]);
     bitset<8> p4(plaintext[1]);
 
-    cout << "Plaintext:" << endl;
-    cout << p3 << p4 << endl;
-    cout << "Cipher actual vs expected:" << endl;
-    cout << p2 << p1 << endl;
-    cout << p3 << p4 << endl;
-//    cout << p1 << p2 << " = " << p3 << p4 << endl;
+    cout << b1 << b2 << endl;
+    cout << p1 << p2 << " = " << p3 << p4 << endl;
 
-    cout << endl;
-
-//    if (plaintextResult[0] != plaintext[0]
-//        || plaintextResult[1] != plaintext[1]) {
-//        throw new exception();
-//    }
+    if (plaintextResult[0] != plaintext[0]
+        || plaintextResult[1] != plaintext[1]) {
+        throw new exception();
+    }
 }
 
 int main() {
@@ -65,7 +56,7 @@ int main() {
     plaintext[1][0] = 0x12;
     plaintext[1][1] = 0x34;
 
-
+    test(plaintext[0]);
 
     unsigned char cipher[2][2];
     cipher[0][0] = 0x47;
@@ -73,12 +64,9 @@ int main() {
     cipher[1][0] = 0x3c;
     cipher[1][1] = 0xf6;
 
-    test(plaintext[0]);
-    test(plaintext[1]);
-    return 0;
-
-
     unsigned char keys[4];
+
+    return 0;
 
     Encrypter<0>::mitm(
             plaintext,

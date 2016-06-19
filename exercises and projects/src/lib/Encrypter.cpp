@@ -110,8 +110,8 @@ void Encrypter<T>::inverseFeistel(unsigned char *plaintext,
         x[1] = z;
     }
 
-    cipher[0] = x[0];
-    cipher[1] = x[1];
+    cipher[0] = x[1];
+    cipher[1] = x[0];
 }
 
 void forward(int keySpaceSize,
