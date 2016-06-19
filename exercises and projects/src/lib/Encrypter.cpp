@@ -49,7 +49,7 @@ bitset<16> Encrypter<T>::concat(bitset<8> inputA, bitset<8> inputB) {
 }
 
 template<size_t T>
-tuple <bitset<8>, bitset<8>> Encrypter<T>::split(bitset<16> input) {
+tuple<bitset<8>, bitset<8>> Encrypter<T>::split(bitset<16> input) {
 
     bitset<8> b1(0);
     bitset<8> b2(0);
@@ -63,7 +63,7 @@ tuple <bitset<8>, bitset<8>> Encrypter<T>::split(bitset<16> input) {
         }
     }
 
-    tuple <bitset<8>, bitset<8>> temp(b1, b2);
+    tuple<bitset<8>, bitset<8>> temp(b1, b2);
     return temp;
 }
 
@@ -116,7 +116,7 @@ void Encrypter<T>::inverseFeistel(unsigned char *plaintext,
 
 void forward(int keySpaceSize,
              unsigned char plaintext[2][2],
-             unordered_map<bitset<16>, unsigned char *> *cipherTable) {
+             unordered_map<bitset<16>, vector<vector<unsigned char>>> *cipherTable) {
 
     // find all key combinations going forward
     for (int i = 0; i < keySpaceSize; i++) {
@@ -133,7 +133,17 @@ void forward(int keySpaceSize,
             bitset<8> c2(currentCipher[1]);
 
             bitset<16> index = Encrypter<0>::concat(c1, c2);
-            (*cipherTable)[index] = keys;
+
+            vector<unsigned char> tempKeys = {i, j};
+            if ((*cipherTable).find(index) == (*cipherTable).end()) {
+                vector<vector<unsigned char>> indexKeys = {tempKeys};
+                (*cipherTable)[index] = indexKeys;
+            }
+            else {
+                vector<vector<unsigned char>> indexKeys = (*cipherTable)[index];
+                indexKeys.push_back(tempKeys);
+                (*cipherTable)[index] = indexKeys;
+            }
         }
     }
 }
@@ -188,7 +198,7 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
     int keySpace = pow(2, 8);
 
     // map from cipher to keyset
-    unordered_map<bitset<16>, unsigned char *> cipherTable;
+    unordered_map<bitset<16>, vector<vector<unsigned char>>> cipherTable;
 
     unsigned char keys[keySpace * keySpace][4];
 
@@ -196,7 +206,7 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
 
     for (auto keyValue : cipherTable) {
 
-        tuple <bitset<8>, bitset<8>> temp = Encrypter<T>::split(keyValue.first);
+        tuple<bitset<8>, bitset<8>> temp = Encrypter<T>::split(keyValue.first);
 
         bitset<8> b1 = get<0>(temp);
         bitset<8> b2 = get<1>(temp);
@@ -204,17 +214,25 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
         unsigned char currentCipher[2];
         convert(b1, b2, currentCipher);
 
-        unsigned char *cipherKeys = keyValue.second;
-        unsigned char plaintextResult[2];
+        vector<vector<unsigned char>> tempKeys = keyValue.second;
 
-        Encrypter<T>::inverseFeistel(currentCipher, plaintextResult, cipherKeys, 2);
+        for (int i = 0; i < tempKeys.size(); i++) {
 
-        if (plaintextResult[0] != plaintext[0][0]
-            || plaintextResult[1] != plaintext[0][1]) {
-            throw new exception();
+            unsigned char cipherKeys[2];
+            cipherKeys[0] = tempKeys[i][0];
+            cipherKeys[1] = tempKeys[i][1];
+
+            unsigned char plaintextResult[2];
+            Encrypter<T>::inverseFeistel(currentCipher, plaintextResult, cipherKeys, 2);
+
+            if (plaintextResult[0] != plaintext[0][0]
+                || plaintextResult[1] != plaintext[0][1]) {
+                throw new exception();
+            }
         }
     }
 
+    /*
     cout << cipherTable.size() << endl;
 
     int x = backward(keySpace, cipher, &cipherTable, keys);
@@ -243,4 +261,5 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
             }
         }
     }
+     */
 }
