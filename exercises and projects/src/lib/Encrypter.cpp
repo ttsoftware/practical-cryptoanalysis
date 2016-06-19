@@ -124,8 +124,8 @@ void forward(int keySpaceSize,
 
             unsigned char currentCipher[2];
             unsigned char keys[2];
-            keys[0] = i;
-            keys[1] = j;
+            keys[0] = static_cast<unsigned char>(i);
+            keys[1] = static_cast<unsigned char>(j);
 
             Encrypter<0>::feistel(plaintext[0], currentCipher, keys, 2);
 
@@ -134,7 +134,7 @@ void forward(int keySpaceSize,
 
             bitset<16> index = Encrypter<0>::concat(c1, c2);
 
-            vector<unsigned char> tempKeys = {static_cast<unsigned char>(i), static_cast<unsigned char>(j)};
+            vector<unsigned char> tempKeys = {keys[0], keys[1]};
             if ((*cipherTable).find(index) == (*cipherTable).end()) {
                 vector<vector<unsigned char>> indexKeys = {tempKeys};
                 (*cipherTable)[index] = indexKeys;
@@ -225,8 +225,14 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
             unsigned char plaintextResult[2];
             Encrypter<T>::inverseFeistel(currentCipher, plaintextResult, cipherKeys, 2);
 
+            cout << i << ":" << keyValue.first << endl;
+            cout << (int) plaintextResult[0] << (int) plaintextResult[1] << endl;
+            cout << (int) plaintext[0][0] << (int) plaintext[0][1] << endl;
+
             if (plaintextResult[0] != plaintext[0][0]
                 || plaintextResult[1] != plaintext[0][1]) {
+
+                // cout << i << ":" << keyValue.first << endl;
 
                 throw new exception();
             }
