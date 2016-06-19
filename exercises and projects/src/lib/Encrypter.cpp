@@ -134,7 +134,7 @@ void forward(int keySpaceSize,
 
             bitset<16> index = Encrypter<0>::concat(c1, c2);
 
-            vector<unsigned char> tempKeys = {i, j};
+            vector<unsigned char> tempKeys = {static_cast<unsigned char>(i), static_cast<unsigned char>(j)};
             if ((*cipherTable).find(index) == (*cipherTable).end()) {
                 vector<vector<unsigned char>> indexKeys = {tempKeys};
                 (*cipherTable)[index] = indexKeys;
