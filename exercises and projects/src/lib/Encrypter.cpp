@@ -193,23 +193,12 @@ void convert(bitset<8> b1, bitset<8> b2, unsigned char returnChars[2]) {
     returnChars[1] = static_cast<unsigned char>(b2.to_ulong());
 }
 
-template<size_t T>
-void Encrypter<T>::mitm(unsigned char plaintext[2][2],
-                        unsigned char cipher[2][2],
-                        unsigned char *returnKeys) {
+void testForward(unsigned char plaintext[2][2],
+                 unordered_map<bitset<16>, vector<vector<unsigned char>>> *cipherTable) {
 
-    int keySpace = pow(2, 8);
+    for (auto keyValue : *cipherTable) {
 
-    // map from cipher to keyset
-    unordered_map<bitset<16>, vector<vector<unsigned char>>> cipherTable;
-
-    unsigned char keys[keySpace * keySpace][4];
-
-    forward(keySpace, plaintext, &cipherTable);
-
-    for (auto keyValue : cipherTable) {
-
-        tuple<bitset<8>, bitset<8>> temp = Encrypter<T>::split(keyValue.first);
+        tuple<bitset<8>, bitset<8>> temp = Encrypter<0>::split(keyValue.first);
 
         bitset<8> b1 = get<0>(temp);
         bitset<8> b2 = get<1>(temp);
@@ -226,7 +215,7 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
             cipherKeys[1] = tempKeys[i][1];
 
             unsigned char plaintextResult[2];
-            Encrypter<T>::inverseFeistel(currentCipher, plaintextResult, cipherKeys, 2);
+            Encrypter<0>::inverseFeistel(currentCipher, plaintextResult, cipherKeys, 2);
 
             if (plaintextResult[0] != plaintext[0][0]
                 || plaintextResult[1] != plaintext[0][1]) {
@@ -235,6 +224,23 @@ void Encrypter<T>::mitm(unsigned char plaintext[2][2],
             }
         }
     }
+}
+
+template<size_t T>
+void Encrypter<T>::mitm(unsigned char plaintext[2][2],
+                        unsigned char cipher[2][2],
+                        unsigned char *returnKeys) {
+
+    int keySpace = pow(2, 8);
+
+    // map from cipher to keyset
+    unordered_map<bitset<16>, vector<vector<unsigned char>>> cipherTable;
+
+    unsigned char keys[keySpace * keySpace][4];
+
+    forward(keySpace, plaintext, &cipherTable);
+
+    testForward(plaintext, &cipherTable);
 
     cout << cipherTable.size() << endl;
 
